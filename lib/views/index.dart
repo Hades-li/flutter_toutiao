@@ -17,25 +17,24 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-
     var _newsDataList = <NewsItem>[];
 
     // 进行数据请求
     _reqList() {
         var httpClient = new HttpClient();
-        httpClient.getUrl(Uri.parse(Api.newsList)).then((
-            HttpClientRequest request) {
+        httpClient
+            .getUrl(Uri.parse(Api.newsList))
+            .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
-            response.transform(utf8.decoder).listen((contents) {
-//                print(contents);
+            response.transform(utf8.decoder).join().then((contents) {
                 var data = json.decode(contents);
                 if (data['code'] == 200) {
-                    List<dynamic> list = data['data'];
+                    print(data['data']);
+                    var list = data['data'];
                     var tmpList = <NewsItem>[];
                     list.forEach((item) {
                         var newsItem = NewsItem.fromJson(item);
-//                         print(newsItem.title);
                         tmpList.add(newsItem);
                     });
                     setState(() {
@@ -45,21 +44,22 @@ class _MyHomePageState extends State<MyHomePage> {
             });
         }).catchError((error) {
             print(error);
-        }).whenComplete(() {
+        }).whenComplete(() {});
+    }
 
-        });
+    @override
+    void initState() {
+        // TODO: implement initState
+        super.initState();
+        _reqList();
     }
 
     @override
     Widget build(BuildContext context) {
 //        设置状态栏
-        SystemChrome.setSystemUIOverlayStyle(
-            new SystemUiOverlayStyle(
-                statusBarColor: new Color(0x00ffffff),
-
-            )
-        );
-        _reqList();
+        SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
+            statusBarColor: new Color(0x00ffffff),
+        ));
 
         return new Scaffold(
             appBar: new AppBar(
@@ -73,19 +73,13 @@ class _MyHomePageState extends State<MyHomePage> {
                         icon: const Icon(Icons.search, size: 26.0),
                         onPressed: () {
                             // todo
-
-                        }
-                    )
+                        })
                 ],
             ),
-            body: new Column(
-                children: <Widget>[
-                    new Container(
-                        height: 300.0,
-                        padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                        child: new NewsList(listData: _newsDataList),
-                    )
-                ],
+            body: new Container(
+                height: 400.0,
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                child: new NewsList(listData: _newsDataList),
             ),
         );
     }
