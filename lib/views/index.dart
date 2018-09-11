@@ -19,7 +19,7 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
     var _newsDataList = <NewsItem>[];
 
-    // 进行数据请求
+    // 请求数据
     _reqList() {
         var httpClient = new HttpClient();
         httpClient
@@ -27,7 +27,8 @@ class _MyHomePageState extends State<MyHomePage> {
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
-            response.transform(utf8.decoder).join().then((contents) {
+            response.transform(utf8.decoder).listen((contents) {
+                print('json数据长度：${contents.length}');
                 var data = json.decode(contents);
                 if (data['code'] == 200) {
                     print(data['data']);
@@ -43,7 +44,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
             });
         }).catchError((error) {
-            print(error);
+//            print(error);
         }).whenComplete(() {});
     }
 
@@ -76,11 +77,20 @@ class _MyHomePageState extends State<MyHomePage> {
                         })
                 ],
             ),
-            body: new Container(
-                height: 400.0,
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                child: new NewsList(listData: _newsDataList),
-            ),
+            body: new Column(
+                children: <Widget>[
+                    new Container(
+                        color: new Color(0xff999999),
+                        height: 30.0,
+                    ),
+                    new Expanded(
+                        child: new Container(
+                        padding: new EdgeInsets.only(
+                            left: 20.0, right: 20.0),
+                        child: new NewsList(listData: _newsDataList),
+                    ))
+                ],
+            )
         );
     }
 }
