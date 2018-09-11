@@ -93,7 +93,6 @@ class _NewsState extends State<NewsList> {
                                         return new Image(
                                             image: new NetworkImageWithRetry(item.image_url),
                                         );
-
                                     } else {
                                         return null;
                                     }
