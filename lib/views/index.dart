@@ -15,8 +15,14 @@ class TabTitle {
 }
 
 List<TabTitle> tabList = [
-    new TabTitle('推荐', 0),
-    new TabTitle('热门', 1),
+    new TabTitle('热点', 0),
+    new TabTitle('社会', 1),
+    new TabTitle('娱乐', 2),
+    new TabTitle('体育', 3),
+    new TabTitle('美文', 4),
+    new TabTitle('科技', 5),
+    new TabTitle('财经', 6),
+    new TabTitle('时尚', 7)
 ];
 
 class MyHomePage extends StatefulWidget {
@@ -28,15 +34,17 @@ class MyHomePage extends StatefulWidget {
     _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateMixin {
+class _MyHomePageState extends State<MyHomePage>
+    with SingleTickerProviderStateMixin {
     var _newsDataList = <NewsItem>[];
     TabController _tabController;
 
+
     // 请求数据
-    _reqList() {
+    _reqList({@required String reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
         httpClient
-            .getUrl(Uri.parse(Api.newsList))
+            .getUrl(Uri.parse(Api.newsList + reqIndex))
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
@@ -57,16 +65,30 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                 }
             });
         }).catchError((error) {
-//            print(error);
-        }).whenComplete(() {});
+            print(error);
+        }).whenComplete(() {
+            complete();
+        });
+    }
+
+    @override
+    void didChangeDependencies() {
+        // TODO: implement didChangeDependencies
+
+        super.didChangeDependencies();
     }
 
     @override
     void initState() {
         // TODO: implement initState
         super.initState();
+        _reqList(reqIndex: '0');
         _tabController = new TabController(length: tabList.length, vsync: this);
-        _reqList();
+        _tabController.addListener(() {
+            if (_tabController.indexIsChanging == false) {
+                _reqList(reqIndex: tabList[_tabController.index].id.toString());
+            }
+        });
     }
 
     @override
@@ -104,15 +126,16 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         color: new Color(0xfff4f5f6),
                         height: 38.0,
                         child: new TabBar(
-                            indicatorColor: const Color(0xfff4f5f6), // 下面线的颜色
-                            labelColor: Colors.red, // 标签文字颜色
+                            isScrollable: true,
+//                            indicatorColor: const Color(0xfff4f5f6), // 下面线的颜色
+                            labelColor: Colors.red,
+                            // 标签文字颜色
                             unselectedLabelColor: const Color(0xff666666),
+                            labelStyle: const TextStyle(fontSize: 16.0),
                             controller: _tabController,
                             tabs: tabList.map((item) {
                                 return new Tab(
-                                    child: new Text(
-                                        item.title
-                                    ),
+                                    text: item.title,
                                 );
                             }).toList()
                         ),
@@ -121,7 +144,12 @@ class _MyHomePageState extends State<MyHomePage> with SingleTickerProviderStateM
                         child: new Container(
                             padding: new EdgeInsets.only(
                                 left: 20.0, right: 20.0),
-                            child: new NewsList(listData: _newsDataList),
+                            child: new NewsList(
+                                listData: _newsDataList,
+                                onRefresh: () {
+                                    print('成功刷新');
+                                },
+                            ),
                         ))
                 ],
             )

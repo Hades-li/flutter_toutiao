@@ -5,8 +5,9 @@ import 'package:flutter_image/network.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
+    VoidCallback onRefresh;
 
-    NewsList({@required List<NewsItem> listData}) : newsDataList = listData;
+    NewsList({@required List<NewsItem> listData, this.onRefresh}) : newsDataList = listData;
 
     @override
     _NewsState createState() => new _NewsState();
@@ -105,19 +106,26 @@ class _NewsState extends State<NewsList> {
         };
 
         // TODO: implement build
-        return new ListView.builder(
-            itemCount: widget.newsDataList.length,
-            itemBuilder: (BuildContext context, int index) {
-                print(widget.newsDataList.length);
-                if (index < widget.newsDataList.length) {
+        return new RefreshIndicator(
+            child: new ListView.builder(
+                physics: const AlwaysScrollableScrollPhysics(),
+                itemCount: widget.newsDataList.length,
+                itemBuilder: (BuildContext context, int index) {
+                    if (index < widget.newsDataList.length) {
 //                    print('index: $index');
 //                    print('title: ${widget.newsDataList[index].title}');
-                    return cellItem_0(
-                        index: index,
-                        item: widget.newsDataList[index]
-                    );
-                } else {
-                    return null;
+                        return cellItem_0(
+                            index: index,
+                            item: widget.newsDataList[index]
+                        );
+                    } else {
+                        return null;
+                    }
+                }
+            ),
+            onRefresh: () {
+                if (widget.onRefresh != null) {
+                    widget.onRefresh();
                 }
             }
         );
