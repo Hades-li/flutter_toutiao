@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import '../modules/newModel.dart';
-import 'package:transparent_image/transparent_image.dart';
+//import 'package:transparent_image/transparent_image.dart';
 import 'package:flutter_image/network.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
-    VoidCallback onRefresh;
+    final RefreshCallback pullRefresh;
 
-    NewsList({@required List<NewsItem> listData, this.onRefresh}) : newsDataList = listData;
+    NewsList({@required List<NewsItem> listData, this.pullRefresh}) : newsDataList = listData;
 
     @override
     _NewsState createState() => new _NewsState();
@@ -123,11 +123,7 @@ class _NewsState extends State<NewsList> {
                     }
                 }
             ),
-            onRefresh: () {
-                if (widget.onRefresh != null) {
-                    widget.onRefresh();
-                }
-            }
+            onRefresh: widget.pullRefresh != null ? widget.pullRefresh : null
         );
     }
 }

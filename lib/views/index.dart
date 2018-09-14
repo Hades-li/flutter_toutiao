@@ -37,13 +37,14 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
     var _newsDataList = <NewsItem>[];
+    NewsList _newsList;
     TabController _tabController;
 
 
     // 请求数据
     _reqList({@required String reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
-        httpClient
+        return httpClient
             .getUrl(Uri.parse(Api.newsList + reqIndex))
             .then((HttpClientRequest request) {
             return request.close();
@@ -67,15 +68,8 @@ class _MyHomePageState extends State<MyHomePage>
         }).catchError((error) {
             print(error);
         }).whenComplete(() {
-            complete();
+
         });
-    }
-
-    @override
-    void didChangeDependencies() {
-        // TODO: implement didChangeDependencies
-
-        super.didChangeDependencies();
     }
 
     @override
@@ -86,7 +80,15 @@ class _MyHomePageState extends State<MyHomePage>
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
-                _reqList(reqIndex: tabList[_tabController.index].id.toString());
+                setState(() {
+                    _newsDataList = [];
+                });
+                print(_newsList);
+                if (_newsList != null) {
+                    _newsList.pullRefresh();
+                }
+//                _reqList(reqIndex: tabList[_tabController.index].id.toString());
+
             }
         });
     }
@@ -100,10 +102,18 @@ class _MyHomePageState extends State<MyHomePage>
 
     @override
     Widget build(BuildContext context) {
+        _newsList = new NewsList(
+            listData: _newsDataList,
+            pullRefresh: () async {
+                await _reqList(reqIndex: _tabController.index.toString());
+            },
+        );
 //        设置状态栏
         SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
             statusBarColor: new Color(0x00ffffff),
         ));
+
+
 
         return new Scaffold(
             appBar: new AppBar(
@@ -144,12 +154,7 @@ class _MyHomePageState extends State<MyHomePage>
                         child: new Container(
                             padding: new EdgeInsets.only(
                                 left: 20.0, right: 20.0),
-                            child: new NewsList(
-                                listData: _newsDataList,
-                                onRefresh: () {
-                                    print('成功刷新');
-                                },
-                            ),
+                            child: _newsList
                         ))
                 ],
             )
