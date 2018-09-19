@@ -71,7 +71,6 @@ class _MyHomePageState extends State<MyHomePage>
 
         });
     }
-
     @override
     void initState() {
         // TODO: implement initState
@@ -88,7 +87,6 @@ class _MyHomePageState extends State<MyHomePage>
                     _newsList.pullRefresh();
                 }
 //                _reqList(reqIndex: tabList[_tabController.index].id.toString());
-
             }
         });
     }
