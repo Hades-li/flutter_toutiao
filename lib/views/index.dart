@@ -150,8 +150,7 @@ class _MyHomePageState extends State<MyHomePage>
                     ),
                     new Expanded(
                         child: new Container(
-                            padding: new EdgeInsets.only(
-                                left: 20.0, right: 20.0),
+                            padding: new EdgeInsets.only(left: 0.0, right: 0.0),
                             child: _newsList
                         ))
                 ],

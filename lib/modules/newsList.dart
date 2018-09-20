@@ -28,81 +28,89 @@ class _NewsState extends State<NewsList> {
     Widget build(BuildContext context) {
         // 第一种cell
         Function cellItem_0 = ({int index, NewsItem item}) {
-            return new Container (
-                padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
-                decoration: new BoxDecoration(
-                    border: index != 0 ? new Border(
-                        top: new BorderSide(color: new Color(0xff000000))
-                    ) : null
-                ),
-                child: new Container(
-                    child: new Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                            new Container( // 左侧内容
-                                width: 200.0,
-                                child: new Column(
-                                    children: <Widget>[
-                                        new Text(
-                                            item.title,
-                                            softWrap: true,
-                                            style: const TextStyle(
-                                                fontSize: 18.0,
-                                                color: const Color(0xff333333),
+            return new FlatButton(
+//                splashColor: Colors.blue,
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                onPressed: () {
+
+                },
+                child:  new Container (
+                    padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
+                    decoration: new BoxDecoration(
+                        border: index != 0 ? new Border(
+                            top: new BorderSide(color: new Color(0xff000000))
+                        ) : null
+                    ),
+                    child: new Container(
+                        child: new Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                                new Container( // 左侧内容
+                                    width: 200.0,
+                                    child: new Column(
+                                        children: <Widget>[
+                                            new Text(
+                                                item.title,
+                                                softWrap: true,
+                                                style: const TextStyle(
+                                                    fontSize: 18.0,
+                                                    color: const Color(0xff333333),
+                                                ),
                                             ),
-                                        ),
-                                        new Row(
-                                            children: <Widget>[
-                                                new Container(
-                                                    decoration: new BoxDecoration(
-                                                        border: new Border.all(
-                                                            color: new Color(
-                                                                0xfffdd3d3)
-                                                        )
-                                                    ),
-                                                    child: new Text(
-                                                        '热',
-                                                        style: const TextStyle(
-                                                            fontSize: 8.0
+                                            new Row(
+                                                children: <Widget>[
+                                                    new Container(
+                                                        decoration: new BoxDecoration(
+                                                            border: new Border.all(
+                                                                color: new Color(
+                                                                    0xfffdd3d3)
+                                                            )
+                                                        ),
+                                                        child: new Text(
+                                                            '热',
+                                                            style: const TextStyle(
+                                                                fontSize: 8.0
+                                                            ),
                                                         ),
                                                     ),
-                                                ),
-                                                new Text(
-                                                    '  ${item
-                                                        .media_name} 评论 ${item
-                                                        .comment_count}',
-                                                    style: const TextStyle(
-                                                        fontSize: 12.0,
-                                                        color: const Color(
-                                                            0xff666666)
+                                                    new Text(
+                                                        '  ${item
+                                                            .media_name} 评论 ${item
+                                                            .comment_count}',
+                                                        style: const TextStyle(
+                                                            fontSize: 12.0,
+                                                            color: const Color(
+                                                                0xff666666)
+                                                        ),
                                                     ),
-                                                ),
-                                            ],
-                                        )
-                                    ],
-                                    mainAxisAlignment: MainAxisAlignment.start,
+                                                ],
+                                            )
+                                        ],
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                    ),
                                 ),
-                            ),
-                            new Container( // 图片item
-                                width: 114.0,
-                                height: 74.0,
-                                color: const Color(0xff666666),
-                                child: () {
-                                    if (item.image_url != null) {
-                                        print(item.image_url);
-                                        return new Image(
-                                            image: new NetworkImageWithRetry(item.image_url),
-                                        );
-                                    } else {
-                                        return null;
-                                    }
-                                }()
-                            )
-                        ],
-                    ),
+                                new Container( // 图片item
+                                    width: 114.0,
+                                    height: 74.0,
+                                    color: const Color(0xff666666),
+                                    child: () {
+                                        if (item.image_url != null) {
+                                            print(item.image_url);
+                                            return new Image(
+                                                image: new NetworkImageWithRetry(item.image_url),
+                                            );
+                                        } else {
+                                            return null;
+                                        }
+                                    }()
+                                )
+                            ],
+                        ),
+                    )
                 )
             );
+
         };
 
         // TODO: implement build
