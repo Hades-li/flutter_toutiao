@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class Detail extends StatefulWidget {
+    final String id;
+
+    Detail(_id) : this.id = _id;
 
     @override
     State<StatefulWidget> createState() {
@@ -11,8 +15,25 @@ class Detail extends StatefulWidget {
 
 class _DetailState extends State<Detail> {
     @override
+    void initState() {
+        // TODO: implement initState
+        print ('初始化');
+
+        super.initState();
+    }
+
+    @override
     Widget build(BuildContext context) {
         // TODO: implement build
-        return new Text('新的详情页');
+        //        设置状态栏
+        SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
+            statusBarColor: new Color(0xff00ff00)
+        ));
+        return new Material(
+            child: new Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: new Text('id号：${widget.id}'),
+            )
+        );
     }
 }

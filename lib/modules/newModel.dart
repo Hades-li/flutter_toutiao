@@ -9,7 +9,15 @@ class NewsItem {
     final int hot; // 是否热
     final int comment_count; // 评论数
     final String image_url; // 图片
-    NewsItem({this.title, this.media_name, this.hot,this.comment_count,this.image_url});
+    final String item_id; // 详情id
+    NewsItem({
+        this.title,
+        this.media_name,
+        this.hot,
+        this.comment_count,
+        this.image_url,
+        this.item_id
+    });
     factory NewsItem.fromJson(Map<String, dynamic> json) => _$NewsItemFromJson(json);
     Map<String, dynamic> toJson() => _$NewsItemToJson(this);
 }

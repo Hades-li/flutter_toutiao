@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../modules/newModel.dart';
-//import 'package:transparent_image/transparent_image.dart';
+import 'globe.dart';
 import 'package:flutter_image/network.dart';
+import 'package:fluro/fluro.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
@@ -32,7 +33,9 @@ class _NewsState extends State<NewsList> {
 //                splashColor: Colors.blue,
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 onPressed: () {
-
+                    String _id = item.item_id;
+                    // push到详情页
+                    Application.router.navigateTo(context, '/detail/$_id',transition: TransitionType.inFromRight);
                 },
                 child:  new Container (
                     padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),

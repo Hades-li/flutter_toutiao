@@ -9,7 +9,6 @@ import '../modules/newsList.dart';
 
 class TabTitle {
     TabTitle(this.title, this.id);
-
     String title;
     int id;
 }
@@ -39,7 +38,6 @@ class _MyHomePageState extends State<MyHomePage>
     var _newsDataList = <NewsItem>[];
     NewsList _newsList;
     TabController _tabController;
-
 
     // 请求数据
     _reqList({@required String reqIndex, VoidCallback complete}) {
@@ -74,6 +72,10 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     void initState() {
         // TODO: implement initState
+        //        设置状态栏
+        /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
+            statusBarColor: new Color(0xff00ff00),
+        ));*/
         super.initState();
         _reqList(reqIndex: '0');
         _tabController = new TabController(length: tabList.length, vsync: this);
@@ -106,12 +108,6 @@ class _MyHomePageState extends State<MyHomePage>
                 await _reqList(reqIndex: _tabController.index.toString());
             },
         );
-//        设置状态栏
-        SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
-            statusBarColor: new Color(0x00ffffff),
-        ));
-
-
 
         return new Scaffold(
             appBar: new AppBar(

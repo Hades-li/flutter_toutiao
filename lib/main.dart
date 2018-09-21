@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
-import 'views/index.dart';
+import 'package:fluro/fluro.dart';
+import 'modules/globe.dart';
+import 'routes/index.dart';
 
 void main() => runApp(new MyApp());
 
 class MyApp extends StatelessWidget {
+    Router createRouter() {
+        Application.router = new Router();
+        Routes.configureRoutes(Application.router);
+        return Application.router;
+    }
     // This widget is the root of your application.
     @override
     Widget build(BuildContext context) {
@@ -20,7 +27,9 @@ class MyApp extends StatelessWidget {
                 // counter didn't reset back to zero; the application is not restarted.
                 primarySwatch: Colors.blue,
             ),
-            home: new MyHomePage(title: '首页'),
+            initialRoute: '/',
+            onGenerateRoute: createRouter().generator,
+//            home: new MyHomePage(title: '首页'),
         );
     }
 }
