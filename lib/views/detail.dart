@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'dart:io';
+import 'dart:convert';
+import '../store/api.dart';
+import '../modules/detail/detailModel.dart';
 
 class Detail extends StatefulWidget {
     final String id;
@@ -14,25 +17,69 @@ class Detail extends StatefulWidget {
 }
 
 class _DetailState extends State<Detail> {
+    DetailItem detailItem;
+
+    _reqData({@required String item_id, VoidCallback complete}) {
+        var httpClient = new HttpClient();
+        return httpClient
+            .getUrl(Uri.parse(Api.detailData + item_id))
+            .then((HttpClientRequest request) {
+            return request.close();
+        }).then((HttpClientResponse response) {
+            response.transform(utf8.decoder).join().then((contents) {
+                print('detail内容：${contents}');
+                print('detail数据长度：${contents.length}');
+                var data = json.decode(contents);
+                if (data['code'] == 200) {
+                    setState(() {
+                        detailItem = DetailItem.fromJson(data['data']);
+                        print(detailItem);
+                    });
+                }
+            });
+        }).catchError((error) {
+            print(error);
+        }).whenComplete(() {
+
+        });
+    }
+
     @override
     void initState() {
         // TODO: implement initState
-        print ('初始化');
-
+        print('初始化');
         super.initState();
+        _reqData(item_id: widget.id);
     }
 
     @override
     Widget build(BuildContext context) {
         // TODO: implement build
-        //        设置状态栏
-        SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
-            statusBarColor: new Color(0xff00ff00)
-        ));
         return new Material(
-            child: new Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: new Text('id号：${widget.id}'),
+            child: new SafeArea(
+                child: new Padding(
+                    padding: new EdgeInsets.all(15.0),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                            new Text(
+                                detailItem?.title ?? '无数据',
+                                softWrap: true,
+                                textAlign: TextAlign.left,
+                                textDirection: TextDirection.ltr,
+                                style: new TextStyle(
+                                    fontSize: 24.0
+                                ),
+                            ),
+                            new Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: <Widget>[
+
+                                ],
+                            )
+                        ],
+                    ),
+                )
             )
         );
     }

@@ -8,8 +8,8 @@ class DetailItem {
     @JsonKey(name: 'media_user', fromJson: _avatarUrl)
     String avatar_url; // 图标
     final String detail_source;// 媒体
-    final String publish_time; // 发布时间
-    final String comment_count; // 评论数
+    final int publish_time; // 发布时间
+    final int comment_count; // 评论数
     DetailItem({
         this.title,
         this.avatar_url,
@@ -18,10 +18,10 @@ class DetailItem {
         this.comment_count
     });
 
-    String _avatarUrl(Map<String, dynamic> map) {
-        return map['avatar_url'];
-    }
-
     factory DetailItem.fromJson(Map<String, dynamic> json) => _$DetailItemFromJson(json);
     Map<String, dynamic> toJson() => _$DetailItemToJson(this);
 }
+String _avatarUrl(Map<String, dynamic> map) {
+    return map['avatar_url'];
+}
+

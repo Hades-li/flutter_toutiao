@@ -29,8 +29,8 @@ class _NewsState extends State<NewsList> {
     Widget build(BuildContext context) {
         // 第一种cell
         Function cellItem_0 = ({int index, NewsItem item}) {
-            return new FlatButton(
-//                splashColor: Colors.blue,
+            return new MaterialButton(
+                splashColor: const Color(0x000000),
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 onPressed: () {
                     String _id = item.item_id;
@@ -52,6 +52,7 @@ class _NewsState extends State<NewsList> {
                                 new Container( // 左侧内容
                                     width: 200.0,
                                     child: new Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: <Widget>[
                                             new Text(
                                                 item.title,
