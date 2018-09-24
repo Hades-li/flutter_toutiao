@@ -41,8 +41,10 @@ class _MyHomePageState extends State<MyHomePage>
     // 请求数据
     _reqList({@required String reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
+        var url = Uri.parse('${Api.newsList}$reqIndex');
+        print(url);
         return httpClient
-            .getUrl(Uri.parse(Api.newsList + reqIndex))
+            .getUrl(url)
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {

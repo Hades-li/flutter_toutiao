@@ -21,19 +21,19 @@ class _DetailState extends State<Detail> {
 
     _reqData({@required String item_id, VoidCallback complete}) {
         var httpClient = new HttpClient();
+        var url = Uri.parse(Api.detailData + item_id);
         return httpClient
-            .getUrl(Uri.parse(Api.detailData + item_id))
+            .getUrl(url)
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
             response.transform(utf8.decoder).join().then((contents) {
-                print('detail内容：${contents}');
+//                print('detail内容：${contents}');
                 print('detail数据长度：${contents.length}');
                 var data = json.decode(contents);
                 if (data['code'] == 200) {
                     setState(() {
                         detailItem = DetailItem.fromJson(data['data']);
-                        print(detailItem);
                     });
                 }
             });
