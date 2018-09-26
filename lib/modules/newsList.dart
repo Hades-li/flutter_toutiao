@@ -8,7 +8,8 @@ class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
 
-    NewsList({@required List<NewsItem> listData, this.pullRefresh}) : newsDataList = listData;
+    NewsList({@required List<NewsItem> listData, this.pullRefresh})
+        : newsDataList = listData;
 
     @override
     _NewsState createState() => new _NewsState();
@@ -35,9 +36,10 @@ class _NewsState extends State<NewsList> {
                 onPressed: () {
                     String _id = item.item_id;
                     // push到详情页
-                    Application.router.navigateTo(context, '/detail/$_id',transition: TransitionType.inFromRight);
+                    Application.router.navigateTo(context, '/detail/$_id',
+                        transition: TransitionType.inFromRight);
                 },
-                child:  new Container (
+                child: new Container (
                     padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                     decoration: new BoxDecoration(
                         border: index != 0 ? new Border(
@@ -52,21 +54,24 @@ class _NewsState extends State<NewsList> {
                                 new Container( // 左侧内容
                                     width: 200.0,
                                     child: new Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment
+                                            .start,
                                         children: <Widget>[
                                             new Text(
                                                 item.title,
                                                 softWrap: true,
                                                 style: const TextStyle(
                                                     fontSize: 18.0,
-                                                    color: const Color(0xff333333),
+                                                    color: const Color(
+                                                        0xff333333),
                                                 ),
                                             ),
                                             new Row(
                                                 children: <Widget>[
                                                     new Container(
                                                         decoration: new BoxDecoration(
-                                                            border: new Border.all(
+                                                            border: new Border
+                                                                .all(
                                                                 color: new Color(
                                                                     0xfffdd3d3)
                                                             )
@@ -91,9 +96,11 @@ class _NewsState extends State<NewsList> {
                                                 ],
                                             )
                                         ],
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment
+                                            .start,
                                     ),
                                 ),
+                                item.image_url != null ?
                                 new Container( // 图片item
                                     width: 114.0,
                                     height: 74.0,
@@ -102,19 +109,29 @@ class _NewsState extends State<NewsList> {
                                         if (item.image_url != null) {
                                             print(item.image_url);
                                             return new Image(
-                                                image: new NetworkImageWithRetry(item.image_url),
+                                                image: new NetworkImageWithRetry(
+                                                    item.image_url),
                                             );
                                         } else {
                                             return null;
                                         }
                                     }()
-                                )
+                                ) : new Container()
                             ],
                         ),
                     )
                 )
             );
+        };
 
+        Function cellItem_1 = ({int index, NewsItem item}) {
+            return new MaterialButton(
+                splashColor: const Color(0x000000),
+                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                onPressed: () {
+
+                },
+            );
         };
 
         // TODO: implement build
