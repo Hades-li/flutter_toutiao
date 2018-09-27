@@ -50,89 +50,106 @@ class _NewsState extends State<NewsList> {
                         child: new Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                                new Container( // 左侧内容
-                                    width: 200.0,
+                            children: () {
+                                List<Widget> list = [];
+                                list.add(new Expanded( // 左侧内容
                                     child: new Column(
                                         crossAxisAlignment: CrossAxisAlignment
                                             .start,
-                                        children: <Widget>[
-                                            new Text(
-                                                item.title,
-                                                softWrap: true,
-                                                style: const TextStyle(
-                                                    fontSize: 18.0,
-                                                    color: const Color(
-                                                        0xff333333),
-                                                ),
-                                            ),
-                                            new Row(
-                                                children: <Widget>[
-                                                    new Container(
-                                                        decoration: new BoxDecoration(
-                                                            border: new Border
-                                                                .all(
-                                                                color: new Color(
-                                                                    0xfffdd3d3)
-                                                            )
-                                                        ),
-                                                        child: new Text(
-                                                            '热',
-                                                            style: const TextStyle(
-                                                                fontSize: 8.0
+                                        children: () {
+                                            List<Widget> list = [];
+                                            list.add(
+                                                new Text(
+                                                    item.title,
+                                                    softWrap: true,
+                                                    style: const TextStyle(
+                                                        fontSize: 18.0,
+                                                        color: const Color(
+                                                            0xff333333),
+                                                    ),
+                                                )
+                                            );
+                                            if (item.image_list != null && item.image_list.length > 0) {
+                                                list.add(
+                                                    new Padding(
+                                                        padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
+                                                        child: new Row(
+                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                                            children: () {
+                                                                return item.image_list.map((imageItem) =>
+                                                                new Expanded(
+                                                                    child:new Image(
+//                                                                        fit: BoxFit.cover,
+                                                                        width: 40.0,
+                                                                        image: new NetworkImageWithRetry(imageItem['url'])
+                                                                    )
+                                                                )
+                                                                ).toList();
+                                                            }()
+                                                        )
+                                                    )
+                                                );
+                                            }
+                                            list.add(
+                                                new Row(
+                                                    children: <Widget>[
+                                                        new Container(
+                                                            decoration: new BoxDecoration(
+                                                                border: new Border
+                                                                    .all(
+                                                                    color: new Color(
+                                                                        0xfffdd3d3)
+                                                                )
+                                                            ),
+                                                            child: new Text(
+                                                                '热',
+                                                                style: const TextStyle(
+                                                                    fontSize: 8.0
+                                                                ),
                                                             ),
                                                         ),
-                                                    ),
-                                                    new Text(
-                                                        '  ${item
-                                                            .media_name} 评论 ${item
-                                                            .comment_count}',
-                                                        style: const TextStyle(
-                                                            fontSize: 12.0,
-                                                            color: const Color(
-                                                                0xff666666)
+                                                        new Text(
+                                                            '  ${item
+                                                                .media_name} 评论 ${item
+                                                                .comment_count}',
+                                                            style: const TextStyle(
+                                                                fontSize: 12.0,
+                                                                color: const Color(
+                                                                    0xff666666)
+                                                            ),
                                                         ),
-                                                    ),
-                                                ],
-                                            )
-                                        ],
-                                        mainAxisAlignment: MainAxisAlignment
-                                            .start,
+                                                    ],
+                                                )
+                                            );
+                                            return list;
+                                        }(),
+                                        mainAxisAlignment: MainAxisAlignment.start,
                                     ),
-                                ),
-                                item.image_url != null ?
-                                new Container( // 图片item
-                                    width: 114.0,
-                                    height: 74.0,
-                                    color: const Color(0xff666666),
-                                    child: () {
-                                        if (item.image_url != null) {
-                                            print(item.image_url);
-                                            return new Image(
+                                ));
+                                if (item.image_url != null) {
+                                    list.add(new SizedBox(
+                                        width: 117.0,
+                                        child: new Container(
+                                            padding: const EdgeInsets.only(
+                                                left: 10.0),
+                                            child: new Image(
+                                                fit: BoxFit.cover,
                                                 image: new NetworkImageWithRetry(
                                                     item.image_url),
-                                            );
-                                        } else {
-                                            return null;
-                                        }
-                                    }()
-                                ) : new Container()
-                            ],
-                        ),
+                                            ),
+                                        )
+                                    )
+                                    );
+                                }
+                                return list;
+                            }()
+                        )
                     )
                 )
             );
         };
 
-        Function cellItem_1 = ({int index, NewsItem item}) {
-            return new MaterialButton(
-                splashColor: const Color(0x000000),
-                padding: const EdgeInsets.only(left: 20.0, right: 20.0),
-                onPressed: () {
-
-                },
-            );
-        };
 
         // TODO: implement build
         return new RefreshIndicator(

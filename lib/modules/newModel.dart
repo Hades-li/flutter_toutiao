@@ -10,13 +10,15 @@ class NewsItem {
     final int comment_count; // 评论数
     final String image_url; // 图片
     final String item_id; // 详情id
+    List<Map<String,dynamic>> image_list;
     NewsItem({
         this.title,
         this.media_name,
         this.hot,
         this.comment_count,
         this.image_url,
-        this.item_id
+        this.item_id,
+        this.image_list
     });
     factory NewsItem.fromJson(Map<String, dynamic> json) => _$NewsItemFromJson(json);
     Map<String, dynamic> toJson() => _$NewsItemToJson(this);
