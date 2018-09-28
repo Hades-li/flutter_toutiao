@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'dart:io';
 import 'dart:convert';
 import '../store/api.dart';
 import '../modules/detail/detailModel.dart';
+import '../store/index.dart';
 
 class Detail extends StatefulWidget {
     final String id;
@@ -54,33 +56,43 @@ class _DetailState extends State<Detail> {
 
     @override
     Widget build(BuildContext context) {
-        // TODO: implement build
-        return new Material(
-            child: new SafeArea(
-                child: new Padding(
-                    padding: new EdgeInsets.all(15.0),
-                    child: new Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                            new Text(
-                                detailItem?.title ?? '无数据',
-                                softWrap: true,
-                                textAlign: TextAlign.left,
-                                textDirection: TextDirection.ltr,
-                                style: new TextStyle(
-                                    fontSize: 24.0
-                                ),
-                            ),
-                            new Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                children: <Widget>[
+        GModel gModel = ScopedModel.of<GModel>(context,rebuildOnChange: true);
+        gModel.setNum(15);
 
-                                ],
-                            )
-                        ],
-                    ),
+
+        // TODO: implement build
+
+        return new Theme(
+            data: Theme.of(context).copyWith(primaryColorBrightness: Brightness.dark),
+            child: new Material(
+                child: new SafeArea(
+                    child: new Padding(
+                        padding: new EdgeInsets.all(15.0),
+                        child: new Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                                new Text(
+                                    detailItem?.title ?? gModel.num.toString(),
+                                    softWrap: true,
+                                    textAlign: TextAlign.left,
+                                    textDirection: TextDirection.ltr,
+                                    style: new TextStyle(
+                                        fontSize: 24.0
+                                    ),
+                                ),
+                                new Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: <Widget>[
+
+                                    ],
+                                )
+                            ],
+                        ),
+                    )
                 )
             )
+
         );
+
     }
 }

@@ -43,7 +43,7 @@ class _NewsState extends State<NewsList> {
                     padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
                     decoration: new BoxDecoration(
                         border: index != 0 ? new Border(
-                            top: new BorderSide(color: new Color(0xff000000))
+                            top: new BorderSide(color: new Color(0xfff6f6f6))
                         ) : null
                     ),
                     child: new Container(
@@ -78,10 +78,11 @@ class _NewsState extends State<NewsList> {
                                                             crossAxisAlignment: CrossAxisAlignment.center,
                                                             children: () {
                                                                 return item.image_list.map((imageItem) =>
-                                                                new Expanded(
+                                                                new SizedBox(
                                                                     child:new Image(
-//                                                                        fit: BoxFit.cover,
-                                                                        width: 40.0,
+                                                                        fit: BoxFit.cover,
+                                                                        width: 120.0,
+                                                                        height: 80.0,
                                                                         image: new NetworkImageWithRetry(imageItem['url'])
                                                                     )
                                                                 )

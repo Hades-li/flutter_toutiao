@@ -78,6 +78,7 @@ class _MyHomePageState extends State<MyHomePage>
             statusBarColor: new Color(0xff00ff00),
         ));*/
         super.initState();
+
         _reqList(reqIndex: '0');
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
