@@ -56,15 +56,15 @@ class _DetailState extends State<Detail> {
 
     @override
     Widget build(BuildContext context) {
-        GModel gModel = ScopedModel.of<GModel>(context,rebuildOnChange: true);
+        GModel gModel = ScopedModel.of<GModel>(context, rebuildOnChange: true);
         gModel.setNum(15);
 
 
         // TODO: implement build
 
-        return new Theme(
-            data: Theme.of(context).copyWith(primaryColorBrightness: Brightness.dark),
-            child: new Material(
+        return new Material(
+            child: new Theme(
+                data: new ThemeData(brightness: Brightness.light),
                 child: new SafeArea(
                     child: new Padding(
                         padding: new EdgeInsets.all(15.0),
@@ -81,18 +81,16 @@ class _DetailState extends State<Detail> {
                                     ),
                                 ),
                                 new Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    mainAxisAlignment: MainAxisAlignment
+                                        .spaceBetween,
                                     children: <Widget>[
-
                                     ],
                                 )
                             ],
                         ),
                     )
-                )
+                ),
             )
-
         );
-
     }
 }
