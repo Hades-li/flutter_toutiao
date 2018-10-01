@@ -24,13 +24,12 @@ class _DetailState extends State<Detail> {
     _reqData({@required String item_id, VoidCallback complete}) {
         var httpClient = new HttpClient();
         var url = Uri.parse(Api.detailData + item_id);
-        return httpClient
-            .getUrl(url)
-            .then((HttpClientRequest request) {
+        return httpClient.getUrl(url).then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
             response.transform(utf8.decoder).join().then((contents) {
 //                print('detail内容：${contents}');
+                print('url地址:${Api.detailData}${item_id}');
                 print('detail数据长度：${contents.length}');
                 var data = json.decode(contents);
                 if (data['code'] == 200) {
@@ -41,9 +40,7 @@ class _DetailState extends State<Detail> {
             });
         }).catchError((error) {
             print(error);
-        }).whenComplete(() {
-
-        });
+        }).whenComplete(() {});
     }
 
     @override
@@ -56,43 +53,44 @@ class _DetailState extends State<Detail> {
 
     @override
     Widget build(BuildContext context) {
-        GModel gModel = ScopedModel.of<GModel>(context,rebuildOnChange: true);
+        GModel gModel = ScopedModel.of<GModel>(context, rebuildOnChange: true);
         gModel.setNum(15);
-
 
         // TODO: implement build
 
-        return new Theme(
-            data: Theme.of(context).copyWith(primaryColorBrightness: Brightness.dark),
-            child: new Material(
-                child: new SafeArea(
-                    child: new Padding(
-                        padding: new EdgeInsets.all(15.0),
-                        child: new Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                                new Text(
-                                    detailItem?.title ?? gModel.num.toString(),
-                                    softWrap: true,
-                                    textAlign: TextAlign.left,
-                                    textDirection: TextDirection.ltr,
-                                    style: new TextStyle(
-                                        fontSize: 24.0
-                                    ),
-                                ),
-                                new Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: <Widget>[
-
-                                    ],
-                                )
-                            ],
-                        ),
-                    )
+        return new Scaffold(
+            backgroundColor: Colors.white,
+            appBar: new AppBar(
+                title: new Text(detailItem?.detail_source ?? ''),
+                backgroundColor: Colors.white,
+                brightness: Brightness.light,
+                iconTheme: Theme.of(context).copyWith(brightness: Brightness.light).iconTheme,
+                textTheme: Theme.of(context).copyWith(brightness: Brightness.light).textTheme,
+                elevation: 0.0,
+            ),
+            body: new SafeArea(
+                child: new Padding(
+                    padding: new EdgeInsets.all(15.0),
+                    child: new Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                            new Text(
+                                detailItem?.title ?? gModel.num.toString(),
+                                softWrap: true,
+                                textAlign: TextAlign.left,
+                                textDirection: TextDirection.ltr,
+                                style: new TextStyle(fontSize: 24.0),
+                            ),
+                            new Row(
+                                mainAxisAlignment: MainAxisAlignment
+                                    .spaceBetween,
+                                children: <Widget>[],
+                            )
+                        ],
+                    ),
                 )
             )
-
         );
-
     }
 }
+
