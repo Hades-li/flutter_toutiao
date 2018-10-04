@@ -51,9 +51,8 @@ class _MyHomePageState extends State<MyHomePage>
         }).then((HttpClientResponse response) {
             return response.transform(utf8.decoder).join().then((contents) {
                 var data = json.decode(contents);
-                print('statu:${data['code']}');
+                print('status:${data['code']}');
                 if (data['code'] == 200) {
-                    print(data['data']);
                     var list = data['data'];
                     var tmpList = <NewsItem>[];
                     list.forEach((item) {
@@ -82,13 +81,23 @@ class _MyHomePageState extends State<MyHomePage>
         /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
             statusBarColor: new Color(0xff00ff00),
         ));*/
-        super.initState();
 
         /*_reqList(reqIndex: '0').then((List<NewsItem> list) {
             setState(() {
                 _newsDataList = list;
             });
         });*/
+
+        // 构建新闻列表
+        _newsList = new NewsList(
+            listData: _newsDataList,
+            pullRefresh: () => _reqList(reqIndex: _tabController.index.toString()).then((list) {
+                setState(() {
+                    _newsDataList = list;
+                });
+            })
+        );
+
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
@@ -102,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage>
 //                _reqList(reqIndex: tabList[_tabController.index].id.toString());
             }
         });
+        super.initState();
     }
 
     @override
@@ -113,16 +123,6 @@ class _MyHomePageState extends State<MyHomePage>
 
     @override
     Widget build(BuildContext context) {
-        // 构建新闻列表
-        _newsList = new NewsList(
-            listData: _newsDataList,
-            pullRefresh: () => _reqList(reqIndex: _tabController.index.toString()).then((list) {
-                setState(() {
-                    _newsDataList = list;
-                });
-            })
-        );
-
         return new Scaffold(
             appBar: new AppBar(
                 // Here we take the value from the MyHomePage object that was created by

@@ -8,17 +8,35 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
-    RefreshCallback pullRefresh;
+    final RefreshCallback pullRefresh;
+    _NewsState _newsState;
 
     NewsList({@required List<NewsItem> listData, this.pullRefresh})
-        : newsDataList = listData;
+        : newsDataList = listData,
+         _newsState = new _NewsState();
 
+    refresh() {
+        _newsState._refresh();
+    }
     @override
-    _NewsState createState() => new _NewsState();
+    _NewsState createState() {
+        return _newsState;
+    }
 }
 
 class _NewsState extends State<NewsList> {
     RefreshController _refreshController;
+    LoadConfig loadConfig;
+
+    @override
+    _NewsState(): _refreshController = new RefreshController(),
+        loadConfig = new LoadConfig(
+            autoLoad: true
+        );
+
+    _refresh() {
+        _refreshController.requestRefresh(true);
+    }
 
     String imgUrl(String url) {
         String imageUrl;
@@ -33,7 +51,7 @@ class _NewsState extends State<NewsList> {
     @override
     void initState() {
         // TODO: implement initState
-        _refreshController = new RefreshController();
+
         super.initState();
     }
 
@@ -201,6 +219,7 @@ class _NewsState extends State<NewsList> {
                 }
             },
             controller: _refreshController,
+            headerConfig: loadConfig,
         );
     }
 }
