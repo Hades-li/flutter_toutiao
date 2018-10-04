@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import '../store/api.dart';
 import '../modules/newModel.dart';
 import '../modules/newsList.dart';
@@ -48,9 +49,9 @@ class _MyHomePageState extends State<MyHomePage>
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
-            response.transform(utf8.decoder).join().then((contents) {
-                print('json数据长度：${contents.length}');
+            return response.transform(utf8.decoder).join().then((contents) {
                 var data = json.decode(contents);
+                print('statu:${data['code']}');
                 if (data['code'] == 200) {
                     print(data['data']);
                     var list = data['data'];
@@ -59,9 +60,13 @@ class _MyHomePageState extends State<MyHomePage>
                         var newsItem = NewsItem.fromJson(item);
                         tmpList.add(newsItem);
                     });
-                    setState(() {
+                    print('list长度：${tmpList.length}');
+                    /* setState(() {
                         _newsDataList = tmpList;
-                    });
+                    }); */
+                    return tmpList;
+                } else {
+                    return <NewsItem>[];
                 }
             });
         }).catchError((error) {
@@ -79,7 +84,11 @@ class _MyHomePageState extends State<MyHomePage>
         ));*/
         super.initState();
 
-        _reqList(reqIndex: '0');
+        /*_reqList(reqIndex: '0').then((List<NewsItem> list) {
+            setState(() {
+                _newsDataList = list;
+            });
+        });*/
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
@@ -88,7 +97,7 @@ class _MyHomePageState extends State<MyHomePage>
                 });
                 print(_newsList);
                 if (_newsList != null) {
-                    _newsList.pullRefresh();
+
                 }
 //                _reqList(reqIndex: tabList[_tabController.index].id.toString());
             }
@@ -104,11 +113,14 @@ class _MyHomePageState extends State<MyHomePage>
 
     @override
     Widget build(BuildContext context) {
+        // 构建新闻列表
         _newsList = new NewsList(
             listData: _newsDataList,
-            pullRefresh: () async {
-                await _reqList(reqIndex: _tabController.index.toString());
-            },
+            pullRefresh: () => _reqList(reqIndex: _tabController.index.toString()).then((list) {
+                setState(() {
+                    _newsDataList = list;
+                });
+            })
         );
 
         return new Scaffold(

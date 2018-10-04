@@ -15,6 +15,7 @@ dependencies:
   scoped_model: ^0.3.0
   timeago: ^2.0.8
   flutter_html: ^0.7.1
+  pull_to_refresh: ^1.1.5
 
 dev_dependencies:
   flutter_test:

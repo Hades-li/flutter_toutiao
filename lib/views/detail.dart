@@ -32,7 +32,7 @@ class _DetailState extends State<Detail> {
         }).then((HttpClientResponse response) {
             response.transform(utf8.decoder).join().then((contents) {
 //                print('detail内容：${contents}');
-                print('url地址:${Api.detailData}${item_id}');
+                print('url地址:${Api.detailData}$item_id');
                 print('detail数据长度：${contents.length}');
                 var data = json.decode(contents);
                 if (data['code'] == 200) {
@@ -140,7 +140,10 @@ class _DetailState extends State<Detail> {
                                     ),
                                 ),
                                 new Html(
-                                    data: detailItem?.content ?? '<p>掉毛没有</p>'
+                                    data: detailItem?.content ?? '<p>掉毛没有</p>',
+                                    onLinkTap: (url) {
+                                        print(url);
+                                    }
                                 )
                             ],
                         ),

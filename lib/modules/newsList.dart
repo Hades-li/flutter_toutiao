@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import '../modules/newModel.dart';
 import 'globe.dart';
 import 'package:flutter_image/network.dart';
 import 'package:fluro/fluro.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
-    final RefreshCallback pullRefresh;
+    RefreshCallback pullRefresh;
 
     NewsList({@required List<NewsItem> listData, this.pullRefresh})
         : newsDataList = listData;
@@ -16,6 +18,8 @@ class NewsList extends StatefulWidget {
 }
 
 class _NewsState extends State<NewsList> {
+    RefreshController _refreshController;
+
     String imgUrl(String url) {
         String imageUrl;
         if (url != null) {
@@ -24,6 +28,13 @@ class _NewsState extends State<NewsList> {
             return null;
         }
         return imageUrl;
+    }
+
+    @override
+    void initState() {
+        // TODO: implement initState
+        _refreshController = new RefreshController();
+        super.initState();
     }
 
     @override
@@ -69,21 +80,31 @@ class _NewsState extends State<NewsList> {
                                                     ),
                                                 )
                                             );
-                                            if (item.image_list != null && item.image_list.length > 0) {
+                                            if (item.image_list != null &&
+                                                item.image_list.length > 0) {
                                                 list.add(
                                                     new Padding(
-                                                        padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
+                                                        padding: const EdgeInsets
+                                                            .only(top: 10.0,
+                                                            bottom: 10.0),
                                                         child: new Row(
-                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                            crossAxisAlignment: CrossAxisAlignment.center,
+                                                            mainAxisAlignment: MainAxisAlignment
+                                                                .spaceBetween,
+                                                            crossAxisAlignment: CrossAxisAlignment
+                                                                .center,
                                                             children: () {
-                                                                return item.image_list.map((imageItem) =>
+                                                                return item
+                                                                    .image_list
+                                                                    .map((
+                                                                    imageItem) =>
                                                                 new SizedBox(
-                                                                    child:new Image(
-                                                                        fit: BoxFit.cover,
+                                                                    child: new Image(
+                                                                        fit: BoxFit
+                                                                            .cover,
                                                                         width: 120.0,
                                                                         height: 80.0,
-                                                                        image: new NetworkImageWithRetry(imageItem['url'])
+                                                                        image: new NetworkImageWithRetry(
+                                                                            imageItem['url'])
                                                                     )
                                                                 )
                                                                 ).toList();
@@ -125,7 +146,8 @@ class _NewsState extends State<NewsList> {
                                             );
                                             return list;
                                         }(),
-                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment
+                                            .start,
                                     ),
                                 ));
                                 if (item.image_url != null) {
@@ -151,9 +173,10 @@ class _NewsState extends State<NewsList> {
             );
         };
 
-
         // TODO: implement build
-        return new RefreshIndicator(
+        return new SmartRefresher(
+//            enablePullUp: true,
+            enablePullDown: true,
             child: new ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: widget.newsDataList.length,
@@ -170,7 +193,14 @@ class _NewsState extends State<NewsList> {
                     }
                 }
             ),
-            onRefresh: widget.pullRefresh != null ? widget.pullRefresh : null
+            onRefresh: (bool up) {
+                if (up) {
+                    widget.pullRefresh().whenComplete(() {
+                        _refreshController.sendBack(true, RefreshStatus.completed);
+                    });
+                }
+            },
+            controller: _refreshController,
         );
     }
 }
