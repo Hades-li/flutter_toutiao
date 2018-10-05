@@ -83,31 +83,23 @@ class _MyHomePageState extends State<MyHomePage>
             statusBarColor: new Color(0xff00ff00),
         ));*/
 
-        /*_reqList(reqIndex: '0').then((List<NewsItem> list) {
-            setState(() {
-                _newsDataList = list;
-            });
-        });*/
-
         // 构建新闻列表
         _newsList = new NewsList(
             listData: _newsDataList,
             pullRefresh: () =>
-                _reqList(reqIndex: _tabController.index.toString()).then((
+                _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((
                     list) {
                     setState(() {
                         _newsDataList = list;
                     });
                 })
         );
-
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
                 setState(() {
                     _newsDataList = [];
                 });
-                print(_newsList);
                 if (_newsList != null) {
                     _newsList.refresh();
                 }

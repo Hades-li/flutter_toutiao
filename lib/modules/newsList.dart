@@ -9,31 +9,21 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
-    final NewsState _newsState;
 
     NewsList({@required List<NewsItem> listData, this.pullRefresh})
-        : newsDataList = listData,
-         _newsState = new NewsState();
+        : newsDataList = listData;
 
-    refresh() {
-        _newsState.refresh();
+    void refresh() {
+        print('空');
     }
 
     @override
-    NewsState createState() {
-        return _newsState;
-    }
+    NewsState createState() => new NewsState();
 }
 
 class NewsState extends State<NewsList> {
     RefreshController _refreshController;
     LoadConfig loadConfig;
-
-    @override
-    NewsState(): _refreshController = new RefreshController(),
-        loadConfig = new LoadConfig(
-            autoLoad: true
-        );
 
     void refresh() {
         _refreshController.sendBack(true, RefreshStatus.idle);
@@ -53,17 +43,20 @@ class NewsState extends State<NewsList> {
 
     @override
     void initState() {
+        print('子类init');
         // TODO: implement initState
-
+        loadConfig = new LoadConfig(
+            autoLoad: true
+        );
+        _refreshController = new RefreshController();
         super.initState();
     }
 
     @override
     Widget build(BuildContext context) {
-        print('list渲染');
+        print('子build');
         // 第一种cell
-        Function cellItem_0 = ({int index, NewsItem item}) {
-            return new MaterialButton(
+        Widget cellItem_0({int index, NewsItem item}) => new MaterialButton(
                 splashColor: const Color(0x000000),
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 onPressed: () {
@@ -193,13 +186,20 @@ class NewsState extends State<NewsList> {
                     )
                 )
             );
-        };
 
         // TODO: implement build
 //        new RefreshIndicator(child: null, onRefresh: null)
         return new SmartRefresher(
-//            enablePullUp: true,
+            controller: _refreshController,
+            headerConfig: loadConfig,
             enablePullDown: true,
+            onRefresh: (bool up) {
+                if (up) {
+                    widget.pullRefresh().whenComplete(() {
+                        _refreshController.sendBack(true, RefreshStatus.completed);
+                    });
+                }
+            },
             child: new ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: widget.newsDataList.length,
@@ -215,17 +215,8 @@ class NewsState extends State<NewsList> {
                         return null;
                     }
                 }
-            ),
-            onRefresh: (bool up) {
-                if (up) {
-                    print('主动下拉');
-                    widget.pullRefresh().whenComplete(() {
-                        _refreshController.sendBack(true, RefreshStatus.completed);
-                    });
-                }
-            },
-            controller: _refreshController,
-            headerConfig: loadConfig,
+            )
+
         );
     }
 }
