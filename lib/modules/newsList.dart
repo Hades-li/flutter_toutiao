@@ -9,32 +9,35 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
-    _NewsState _newsState;
+    final NewsState _newsState;
 
     NewsList({@required List<NewsItem> listData, this.pullRefresh})
         : newsDataList = listData,
-         _newsState = new _NewsState();
+         _newsState = new NewsState();
 
     refresh() {
-        _newsState._refresh();
+        _newsState.refresh();
     }
+
     @override
-    _NewsState createState() {
+    NewsState createState() {
         return _newsState;
     }
 }
 
-class _NewsState extends State<NewsList> {
+class NewsState extends State<NewsList> {
     RefreshController _refreshController;
     LoadConfig loadConfig;
 
     @override
-    _NewsState(): _refreshController = new RefreshController(),
+    NewsState(): _refreshController = new RefreshController(),
         loadConfig = new LoadConfig(
             autoLoad: true
         );
 
-    _refresh() {
+    void refresh() {
+        _refreshController.sendBack(true, RefreshStatus.idle);
+        _refreshController.scrollTo(100.0);
         _refreshController.requestRefresh(true);
     }
 
@@ -57,6 +60,7 @@ class _NewsState extends State<NewsList> {
 
     @override
     Widget build(BuildContext context) {
+        print('list渲染');
         // 第一种cell
         Function cellItem_0 = ({int index, NewsItem item}) {
             return new MaterialButton(
@@ -192,6 +196,7 @@ class _NewsState extends State<NewsList> {
         };
 
         // TODO: implement build
+//        new RefreshIndicator(child: null, onRefresh: null)
         return new SmartRefresher(
 //            enablePullUp: true,
             enablePullDown: true,
@@ -213,6 +218,7 @@ class _NewsState extends State<NewsList> {
             ),
             onRefresh: (bool up) {
                 if (up) {
+                    print('主动下拉');
                     widget.pullRefresh().whenComplete(() {
                         _refreshController.sendBack(true, RefreshStatus.completed);
                     });

@@ -2,13 +2,13 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:async';
 import '../store/api.dart';
 import '../modules/newModel.dart';
 import '../modules/newsList.dart';
 
 class TabTitle {
     TabTitle(this.title, this.id);
+
     String title;
     int id;
 }
@@ -74,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage>
 
         });
     }
+
     @override
     void initState() {
         // TODO: implement initState
@@ -91,11 +92,13 @@ class _MyHomePageState extends State<MyHomePage>
         // 构建新闻列表
         _newsList = new NewsList(
             listData: _newsDataList,
-            pullRefresh: () => _reqList(reqIndex: _tabController.index.toString()).then((list) {
-                setState(() {
-                    _newsDataList = list;
-                });
-            })
+            pullRefresh: () =>
+                _reqList(reqIndex: _tabController.index.toString()).then((
+                    list) {
+                    setState(() {
+                        _newsDataList = list;
+                    });
+                })
         );
 
         _tabController = new TabController(length: tabList.length, vsync: this);
@@ -106,12 +109,18 @@ class _MyHomePageState extends State<MyHomePage>
                 });
                 print(_newsList);
                 if (_newsList != null) {
-
+                    _newsList.refresh();
                 }
 //                _reqList(reqIndex: tabList[_tabController.index].id.toString());
             }
         });
         super.initState();
+    }
+
+    @override
+    void didUpdateWidget(MyHomePage oldWidget) {
+        // TODO: implement didUpdateWidget
+        super.didUpdateWidget(oldWidget);
     }
 
     @override
