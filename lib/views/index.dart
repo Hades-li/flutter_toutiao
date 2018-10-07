@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import '../store/api.dart';
 import '../modules/newModel.dart';
 import '../modules/newsList.dart';
@@ -38,6 +39,8 @@ class _MyHomePageState extends State<MyHomePage>
     var _newsDataList = <NewsItem>[];
     NewsList _newsList;
     TabController _tabController;
+    GlobalKey<NewsState> newsStateKey = new GlobalKey();
+    VoidCallback callbackFn;
 
     // 请求数据
     _reqList({@required String reqIndex, VoidCallback complete}) {
@@ -75,6 +78,10 @@ class _MyHomePageState extends State<MyHomePage>
         });
     }
 
+    Future nextTick() {
+        return new Future<void>(callbackFn);
+    }
+
     @override
     void initState() {
         // TODO: implement initState
@@ -82,18 +89,9 @@ class _MyHomePageState extends State<MyHomePage>
         /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
             statusBarColor: new Color(0xff00ff00),
         ));*/
-
-        // 构建新闻列表
-        _newsList = new NewsList(
-            listData: _newsDataList,
-            pullRefresh: () =>
-                _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((
-                    list) {
-                    setState(() {
-                        _newsDataList = list;
-                    });
-                })
-        );
+        callbackFn = () {
+            print('初始化结束');
+        };
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
@@ -101,14 +99,14 @@ class _MyHomePageState extends State<MyHomePage>
                     _newsDataList = [];
                 });
                 if (_newsList != null) {
-                    _newsList.refresh();
+                    newsStateKey.currentState.refresh();
                 }
 //                _reqList(reqIndex: tabList[_tabController.index].id.toString());
             }
         });
         super.initState();
     }
-
+    
     @override
     void didUpdateWidget(MyHomePage oldWidget) {
         // TODO: implement didUpdateWidget
@@ -124,6 +122,18 @@ class _MyHomePageState extends State<MyHomePage>
 
     @override
     Widget build(BuildContext context) {
+        // 构建新闻列表
+        _newsList = new NewsList(
+            key: newsStateKey,
+            listData: _newsDataList,
+            pullRefresh: () =>
+                _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((list) {
+                    setState(() {
+                        _newsDataList = list;
+                    });
+                })
+        );
+
         return new Scaffold(
             appBar: new AppBar(
                 // Here we take the value from the MyHomePage object that was created by

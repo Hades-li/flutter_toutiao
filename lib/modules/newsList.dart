@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 import '../modules/newModel.dart';
 import 'globe.dart';
 import 'package:flutter_image/network.dart';
@@ -10,11 +9,12 @@ class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
 
-    NewsList({@required List<NewsItem> listData, this.pullRefresh})
-        : newsDataList = listData;
+    NewsList({Key key,@required List<NewsItem> listData, this.pullRefresh})
+        : newsDataList = listData,
+        super(key: key);
 
-    void refresh() {
-        print('空');
+    refresh() {
+//        stateKey.currentState.refresh();
     }
 
     @override
@@ -24,12 +24,6 @@ class NewsList extends StatefulWidget {
 class NewsState extends State<NewsList> {
     RefreshController _refreshController;
     LoadConfig loadConfig;
-
-    void refresh() {
-        _refreshController.sendBack(true, RefreshStatus.idle);
-        _refreshController.scrollTo(100.0);
-        _refreshController.requestRefresh(true);
-    }
 
     String imgUrl(String url) {
         String imageUrl;
@@ -41,12 +35,18 @@ class NewsState extends State<NewsList> {
         return imageUrl;
     }
 
+    void refresh() {
+        _refreshController.sendBack(true, RefreshStatus.idle);
+//        _refreshController.scrollTo(100.0);
+        _refreshController.requestRefresh(true);
+    }
+
     @override
     void initState() {
         print('子类init');
         // TODO: implement initState
         loadConfig = new LoadConfig(
-            autoLoad: true
+            autoLoad: false
         );
         _refreshController = new RefreshController();
         super.initState();
@@ -54,7 +54,6 @@ class NewsState extends State<NewsList> {
 
     @override
     Widget build(BuildContext context) {
-        print('子build');
         // 第一种cell
         Widget cellItem_0({int index, NewsItem item}) => new MaterialButton(
                 splashColor: const Color(0x000000),
@@ -191,12 +190,23 @@ class NewsState extends State<NewsList> {
 //        new RefreshIndicator(child: null, onRefresh: null)
         return new SmartRefresher(
             controller: _refreshController,
-            headerConfig: loadConfig,
+//            headerConfig: loadConfig,
+            headerBuilder: (BuildContext context, int mode) {
+                return new ClassicIndicator(
+                    mode: mode,
+                    idleText: '下拉刷新',
+                    releaseText: '释放更新',
+                    refreshingText: '正在加载',
+                    completeText: '更新完成',
+                );
+            },
             enablePullDown: true,
             onRefresh: (bool up) {
                 if (up) {
                     widget.pullRefresh().whenComplete(() {
                         _refreshController.sendBack(true, RefreshStatus.completed);
+                    }).catchError(() {
+                        _refreshController.sendBack(true, RefreshStatus.failed);
                     });
                 }
             },
