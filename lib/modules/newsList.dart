@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../modules/newModel.dart';
+import 'dart:async';
 import 'globe.dart';
 import 'package:flutter_image/network.dart';
 import 'package:fluro/fluro.dart';
@@ -36,26 +37,32 @@ class NewsState extends State<NewsList> {
     }
 
     void refresh() {
-        _refreshController.sendBack(true, RefreshStatus.idle);
+//        _refreshController.sendBack(true, RefreshStatus.idle);
 //        _refreshController.scrollTo(100.0);
         _refreshController.requestRefresh(true);
     }
 
     @override
     void initState() {
-        print('子类init');
         // TODO: implement initState
         loadConfig = new LoadConfig(
             autoLoad: false
         );
         _refreshController = new RefreshController();
+        /*WidgetsBinding.instance.addPostFrameCallback((_) {
+            new Future.delayed(new Duration(milliseconds: 1),() {
+                refresh();
+            });
+        });*/
+        refresh();
         super.initState();
+        print('子类init');
     }
 
     @override
     Widget build(BuildContext context) {
         // 第一种cell
-        Widget cellItem_0({int index, NewsItem item}) => new MaterialButton(
+        MaterialButton cellItem_0({int index, NewsItem item}) => new MaterialButton(
                 splashColor: const Color(0x000000),
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 onPressed: () {
@@ -186,6 +193,10 @@ class NewsState extends State<NewsList> {
                 )
             );
 
+        // 当列表为空时的cell
+        errorWidget() => new Center(
+            child: new Text('请下拉刷新'),
+        );
         // TODO: implement build
 //        new RefreshIndicator(child: null, onRefresh: null)
         return new SmartRefresher(
@@ -198,15 +209,19 @@ class NewsState extends State<NewsList> {
                     releaseText: '释放更新',
                     refreshingText: '正在加载',
                     completeText: '更新完成',
+                    failedText: '加载失败',
                 );
             },
             enablePullDown: true,
             onRefresh: (bool up) {
+                print('子类刷新函数');
                 if (up) {
-                    widget.pullRefresh().whenComplete(() {
+                    widget.pullRefresh().then((_) {
                         _refreshController.sendBack(true, RefreshStatus.completed);
-                    }).catchError(() {
+                    }).catchError((err) {
                         _refreshController.sendBack(true, RefreshStatus.failed);
+                    }).whenComplete(() {
+
                     });
                 }
             },
@@ -214,6 +229,7 @@ class NewsState extends State<NewsList> {
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: widget.newsDataList.length,
                 itemBuilder: (BuildContext context, int index) {
+                    print('index:$index');
                     if (index < widget.newsDataList.length) {
 //                    print('index: $index');
 //                    print('title: ${widget.newsDataList[index].title}');

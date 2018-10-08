@@ -49,7 +49,9 @@ class _DetailState extends State<Detail> {
     @override
     void initState() {
         // TODO: implement initState
-        print('初始化');
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            print('详情页渲染完成');
+        });
         super.initState();
         timeago.setLocaleMessages('zh_CN', timeago.ZhCnMessages());
         _reqData(item_id: widget.id);

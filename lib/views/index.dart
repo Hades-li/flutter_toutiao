@@ -6,6 +6,7 @@ import 'dart:async';
 import '../store/api.dart';
 import '../modules/newModel.dart';
 import '../modules/newsList.dart';
+import '../utils/http.dart';
 
 class TabTitle {
     TabTitle(this.title, this.id);
@@ -43,7 +44,29 @@ class _MyHomePageState extends State<MyHomePage>
     VoidCallback callbackFn;
 
     // 请求数据
+    reqData({@required String index}) {
+        final dio = createDio();
+        dio.get('${Api.newsList}$index').then((res) {
+            if (res.data['data'] == 200 ) {
+                var list = res.data['data'];
+                var tmpList = <NewsItem>[];
+                list.forEach((item) {
+                    var newsItem = NewsItem.fromJson(item);
+                    tmpList.add(newsItem);
+                });
+                print('list长度：${tmpList.length}');
+                /* setState(() {
+                        _newsDataList = tmpList;
+                    }); */
+                return tmpList;
+            } else {
+
+            }
+        });
+    }
+
     _reqList({@required String reqIndex, VoidCallback complete}) {
+        print('请求主数据');
         var httpClient = new HttpClient();
         var url = Uri.parse('${Api.newsList}$reqIndex');
         print(url);
@@ -68,13 +91,9 @@ class _MyHomePageState extends State<MyHomePage>
                     }); */
                     return tmpList;
                 } else {
-                    return <NewsItem>[];
+                    throw new Exception(data['msg']);
                 }
             });
-        }).catchError((error) {
-            print(error);
-        }).whenComplete(() {
-
         });
     }
 
@@ -89,9 +108,10 @@ class _MyHomePageState extends State<MyHomePage>
         /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
             statusBarColor: new Color(0xff00ff00),
         ));*/
-        callbackFn = () {
-            print('初始化结束');
-        };
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+//            newsStateKey.currentState.refresh();
+            print('渲染完成');
+        });
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
