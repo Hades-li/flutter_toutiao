@@ -9,14 +9,19 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
+    final Function bottomOffsetChange;
+    final bool isAutoRefresh; // 是否自动加载
+    final bool isBottomRefreshing; // 底部是否正在加载，用于标记状态
 
-    NewsList({Key key,@required List<NewsItem> listData, this.pullRefresh})
-        : newsDataList = listData,
+    NewsList({
+        Key key,
+        @required List<NewsItem> listData,
+        this.isAutoRefresh = false,
+        this.pullRefresh,
+        this.bottomOffsetChange,
+        this.isBottomRefreshing = false
+    }): newsDataList = listData,
         super(key: key);
-
-    refresh() {
-//        stateKey.currentState.refresh();
-    }
 
     @override
     NewsState createState() => new NewsState();
@@ -24,7 +29,10 @@ class NewsList extends StatefulWidget {
 
 class NewsState extends State<NewsList> {
     RefreshController _refreshController;
+    ScrollController _control;
     LoadConfig loadConfig;
+    String get bottomText => widget.isBottomRefreshing ? '正在更新' : '已经到底';
+
 
     String imgUrl(String url) {
         String imageUrl;
@@ -49,12 +57,23 @@ class NewsState extends State<NewsList> {
             autoLoad: false
         );
         _refreshController = new RefreshController();
-        /*WidgetsBinding.instance.addPostFrameCallback((_) {
-            new Future.delayed(new Duration(milliseconds: 1),() {
-                refresh();
+
+        _control = new ScrollController();
+        _control.addListener(() {
+            print('已到底部');
+
+            if (_control.position.pixels == _control.position.maxScrollExtent) {
+            }
+        });
+//        判断是否自动刷新
+        if (widget.isAutoRefresh) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                new Future.delayed(new Duration(milliseconds: 1),() {
+                    refresh();
+                });
             });
-        });*/
-        refresh();
+        }
+
         super.initState();
         print('子类init');
     }
@@ -195,7 +214,8 @@ class NewsState extends State<NewsList> {
 
         // 当列表为空时的cell
         errorWidget() => new Center(
-            child: new Text('请下拉刷新'),
+            heightFactor: 2.0,
+            child: new Text('目前没有数据'),
         );
         // TODO: implement build
 //        new RefreshIndicator(child: null, onRefresh: null)
@@ -214,7 +234,6 @@ class NewsState extends State<NewsList> {
             },
             enablePullDown: true,
             onRefresh: (bool up) {
-                print('子类刷新函数');
                 if (up) {
                     widget.pullRefresh().then((_) {
                         _refreshController.sendBack(true, RefreshStatus.completed);
@@ -225,9 +244,19 @@ class NewsState extends State<NewsList> {
                     });
                 }
             },
-            child: new ListView.builder(
+            onOffsetChange: (bool up,double offset) {
+                if (up) {
+
+                } else {
+                    // 判断是否滑到底部
+                    widget.bottomOffsetChange(offset);
+                }
+            },
+            child:widget.newsDataList.isEmpty ?
+            new ListView(children: <Widget>[errorWidget()]) :
+            new ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                itemCount: widget.newsDataList.length,
+                itemCount: widget.newsDataList.length + 1,
                 itemBuilder: (BuildContext context, int index) {
                     print('index:$index');
                     if (index < widget.newsDataList.length) {
@@ -238,11 +267,15 @@ class NewsState extends State<NewsList> {
                             item: widget.newsDataList[index]
                         );
                     } else {
-                        return null;
+                        return new Container(
+                            padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
+                            color: Colors.white30,
+                            child: Center(child: new Text(bottomText)),
+                        );
                     }
-                }
+                },
+                controller: _control,
             )
-
         );
     }
 }

@@ -41,7 +41,7 @@ class _MyHomePageState extends State<MyHomePage>
     NewsList _newsList;
     TabController _tabController;
     GlobalKey<NewsState> newsStateKey = new GlobalKey();
-    VoidCallback callbackFn;
+    bool isBottomRefresh = false;
 
     // 请求数据
     reqData({@required String index}) {
@@ -65,13 +65,13 @@ class _MyHomePageState extends State<MyHomePage>
         });
     }
 
-    _reqList({@required String reqIndex, VoidCallback complete}) {
-        print('请求主数据');
+    Future _reqList({@required String reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
         var url = Uri.parse('${Api.newsList}$reqIndex');
         print(url);
         return httpClient
             .getUrl(url)
+            .timeout(new Duration(milliseconds: 5000))
             .then((HttpClientRequest request) {
             return request.close();
         }).then((HttpClientResponse response) {
@@ -98,7 +98,11 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     Future nextTick() {
-        return new Future<void>(callbackFn);
+        return new Future(() {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                return null;
+            });
+        });
     }
 
     @override
@@ -108,8 +112,7 @@ class _MyHomePageState extends State<MyHomePage>
         /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
             statusBarColor: new Color(0xff00ff00),
         ));*/
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-//            newsStateKey.currentState.refresh();
+        nextTick().then((_) {
             print('渲染完成');
         });
         _tabController = new TabController(length: tabList.length, vsync: this);
@@ -121,7 +124,6 @@ class _MyHomePageState extends State<MyHomePage>
                 if (_newsList != null) {
                     newsStateKey.currentState.refresh();
                 }
-//                _reqList(reqIndex: tabList[_tabController.index].id.toString());
             }
         });
         super.initState();
@@ -146,12 +148,35 @@ class _MyHomePageState extends State<MyHomePage>
         _newsList = new NewsList(
             key: newsStateKey,
             listData: _newsDataList,
+            isAutoRefresh: true,
+            isBottomRefreshing: isBottomRefresh,
             pullRefresh: () =>
                 _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((list) {
                     setState(() {
                         _newsDataList = list;
                     });
-                })
+                }).catchError((onError) {
+                    throw new Exception('timeout');
+                }),
+            bottomOffsetChange: (double offset) {
+                if (isBottomRefresh == false) {
+                    setState(() {
+                        isBottomRefresh = true;
+                    });
+                    _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((list) {
+                        setState(() {
+                            _newsDataList.addAll(list);
+                        });
+                    }).catchError((onError){
+
+                    }).whenComplete(() {
+                        setState(() {
+                            isBottomRefresh = false;
+                        });
+                    });
+                }
+
+            },
         );
 
         return new Scaffold(
