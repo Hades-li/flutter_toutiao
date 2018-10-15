@@ -43,8 +43,8 @@ class _MyHomePageState extends State<MyHomePage>
     GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
 
-    // 请求数据
-    reqData({@required String index}) {
+    // dio请求数据
+    Future reqData({@required String index}) async {
         final dio = createDio();
         dio.get('${Api.newsList}$index').then((res) {
             if (res.data['data'] == 200 ) {
@@ -60,11 +60,12 @@ class _MyHomePageState extends State<MyHomePage>
                     }); */
                 return tmpList;
             } else {
-
+                throw new Exception(res.data['msg']);
             }
         });
     }
 
+    // httpClient请求数据
     Future _reqList({@required String reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
         var url = Uri.parse('${Api.newsList}$reqIndex');

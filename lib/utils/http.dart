@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 
-
 Dio createDio() {
     Dio dio = new Dio(new Options(
         connectTimeout: 5000
