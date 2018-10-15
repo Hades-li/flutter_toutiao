@@ -138,11 +138,13 @@ class NewsState extends State<NewsList> {
                                                                     .map((
                                                                     imageItem) =>
                                                                 new SizedBox(
+                                                                    width: 120.0,
+                                                                    height: 80.0,
                                                                     child: new Image(
                                                                         fit: BoxFit
                                                                             .cover,
-                                                                        width: 120.0,
-                                                                        height: 80.0,
+//                                                                        width: 120.0,
+//                                                                        height: 80.0,
                                                                         image: new NetworkImageWithRetry(
                                                                             imageItem['url'])
                                                                     )

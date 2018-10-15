@@ -30,9 +30,11 @@ class _DetailState extends State<Detail> {
 
     Future reqData({@required String itemId}) {
         final dio = createDio();
-        return dio.get('${Api.detailData}$itemId').then((res) {
-            print('${Api.detailData}$itemId'); // 打印url
-            if (res.data['code'] == 200) {
+        final url = Api.getDetailUrl(id: itemId);
+        print(url);
+        return dio.get(url).then((res) {
+            print(res);
+            if (res.data['success'] = true) {
                 var data = res.data['data'];
                 return DetailItem.fromJson(data);
             } else {

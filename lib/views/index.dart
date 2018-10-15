@@ -44,10 +44,12 @@ class _MyHomePageState extends State<MyHomePage>
     bool isBottomRefresh = false;
 
     // dio请求数据
-    Future reqData({@required String index}) async {
+    Future reqData({@required int index}) async {
         final dio = createDio();
-        dio.get('${Api.newsList}$index').then((res) {
-            if (res.data['data'] == 200 ) {
+        final url = Api.getUrl(type: index, ms: new DateTime.now().millisecond);
+        print(url);
+        return dio.get(url).then((res) {
+            if (res.data['return_count'] > 0 ) {
                 var list = res.data['data'];
                 var tmpList = <NewsItem>[];
                 list.forEach((item) {
@@ -55,18 +57,15 @@ class _MyHomePageState extends State<MyHomePage>
                     tmpList.add(newsItem);
                 });
                 print('list长度：${tmpList.length}');
-                /* setState(() {
-                        _newsDataList = tmpList;
-                    }); */
                 return tmpList;
             } else {
-                throw new Exception(res.data['msg']);
+                throw new Exception('404');
             }
         });
     }
 
-    // httpClient请求数据
-    Future _reqList({@required String reqIndex, VoidCallback complete}) {
+    // httpClient请求数据(已经不用了)
+    Future _reqList({@required int reqIndex, VoidCallback complete}) {
         var httpClient = new HttpClient();
         var url = Uri.parse('${Api.newsList}$reqIndex');
         print(url);
@@ -109,10 +108,8 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     void initState() {
         // TODO: implement initState
-        //        设置状态栏
-        /*SystemChrome.setSystemUIOverlayStyle(new SystemUiOverlayStyle(
-            statusBarColor: new Color(0xff00ff00),
-        ));*/
+
+        // 首次渲染完成的回调
         nextTick().then((_) {
             print('渲染完成');
         });
@@ -152,19 +149,26 @@ class _MyHomePageState extends State<MyHomePage>
             isAutoRefresh: true,
             isBottomRefreshing: isBottomRefresh,
             pullRefresh: () =>
-                _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((list) {
+                reqData(index: tabList[_tabController.index].id).then((list){
+                    setState(() {
+                        _newsDataList = list;
+                    });
+                }).catchError((onError) {
+                    throw new Exception('404');
+                }),
+                /*_reqList(reqIndex: tabList[_tabController.index].id).then((list) {
                     setState(() {
                         _newsDataList = list;
                     });
                 }).catchError((onError) {
                     throw new Exception('timeout');
-                }),
+                }),*/
             bottomOffsetChange: (double offset) {
                 if (isBottomRefresh == false) {
                     setState(() {
                         isBottomRefresh = true;
                     });
-                    _reqList(reqIndex: tabList[_tabController.index].id.toString()).then((list) {
+                    reqData(index: tabList[_tabController.index].id).then((list) {
                         setState(() {
                             _newsDataList.addAll(list);
                         });
