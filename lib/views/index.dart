@@ -43,9 +43,10 @@ class _MyHomePageState extends State<MyHomePage>
     TabController _tabController;
     GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
+    bool isRefreshing = false;
 
     // dio请求数据
-    Future reqData({@required int index}) async {
+    Future reqData({@required int index}) {
         final dio = createDio();
         final url = Api.getUrl(type: index, ms: new DateTime.now().millisecond);
         print(url);
@@ -149,23 +150,25 @@ class _MyHomePageState extends State<MyHomePage>
             listData: _newsDataList,
             isAutoRefresh: true,
             isBottomRefreshing: isBottomRefresh,
-            pullRefresh: () =>
-                reqData(index: tabList[_tabController.index].id).then((list){
-                    setState(() {
-                        _newsDataList = list;
+            pullRefresh: () {
+                if (isRefreshing == false) {
+                    isRefreshing = true;
+                    return reqData(index: tabList[_tabController.index].id).then((list){
+                        setState(() {
+                            _newsDataList = list;
+                        });
+                    }).catchError((onError) {
+                        throw new Exception('404');
+                    }).whenComplete(() {
+                        isRefreshing = false;
+                        return null;
                     });
-                }).catchError((onError) {
-                    throw new Exception('404');
-                }),
-                /*_reqList(reqIndex: tabList[_tabController.index].id).then((list) {
-                    setState(() {
-                        _newsDataList = list;
-                    });
-                }).catchError((onError) {
-                    throw new Exception('timeout');
-                }),*/
+                }
+
+            },
             bottomOffsetChange: (double offset) {
-                if (isBottomRefresh == false) {
+                print(offset);
+                if (isBottomRefresh == false && isRefreshing == false) {
                     setState(() {
                         isBottomRefresh = true;
                     });

@@ -304,8 +304,28 @@ class NewsState extends State<NewsList> {
                         return new Container(
                             padding: const EdgeInsets.only(
                                 top: 10.0, bottom: 10.0),
-                            color: Colors.white30,
-                            child: Center(child: new Text(bottomText)),
+                            color: Colors.white70,
+                            child: new Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                    new Offstage(
+                                        offstage: !widget.isBottomRefreshing,
+                                        child: new SizedBox(
+                                            width: 24.0,
+                                            height: 24.0,
+                                            child: new CircularProgressIndicator(
+                                                strokeWidth: 2.0,
+                                            ),
+                                        ),
+                                    ),
+                                    new Padding(
+                                        padding: const EdgeInsets.only(
+                                            left: 10.0,
+                                        ),
+                                        child: new Text(bottomText),
+                                    )
+                                ],
+                            )
                         );
                     }
                 },
