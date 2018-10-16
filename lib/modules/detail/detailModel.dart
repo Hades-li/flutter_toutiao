@@ -24,6 +24,10 @@ class DetailItem {
     Map<String, dynamic> toJson() => _$DetailItemToJson(this);
 }
 String _avatarUrl(Map<String, dynamic> map) {
-    return map['avatar_url'];
+    if (map != null) {
+        return map['avatar_url'];
+    } else {
+        return null;
+    }
 }
 

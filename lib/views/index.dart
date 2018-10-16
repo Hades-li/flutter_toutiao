@@ -16,6 +16,7 @@ class TabTitle {
 }
 
 List<TabTitle> tabList = [
+    new TabTitle('推荐', 10),
     new TabTitle('热点', 0),
     new TabTitle('社会', 1),
     new TabTitle('娱乐', 2),

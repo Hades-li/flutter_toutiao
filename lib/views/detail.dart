@@ -15,7 +15,7 @@ import '../utils/http.dart';
 class Detail extends StatefulWidget {
     final String id;
 
-    Detail(_id) : this.id = _id;
+    Detail(this.id);
 
     @override
     State<StatefulWidget> createState() {

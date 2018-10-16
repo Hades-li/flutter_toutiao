@@ -5,6 +5,7 @@ import 'globe.dart';
 import 'package:flutter_image/network.dart';
 import 'package:fluro/fluro.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
@@ -20,8 +21,9 @@ class NewsList extends StatefulWidget {
         this.pullRefresh,
         this.bottomOffsetChange,
         this.isBottomRefreshing = false
-    }): newsDataList = listData,
-        super(key: key);
+    })
+        : newsDataList = listData,
+            super(key: key);
 
     @override
     NewsState createState() => new NewsState();
@@ -31,6 +33,7 @@ class NewsState extends State<NewsList> {
     RefreshController _refreshController;
     ScrollController _control;
     LoadConfig loadConfig;
+
     String get bottomText => widget.isBottomRefreshing ? '正在更新' : '已经到底';
 
 
@@ -50,6 +53,19 @@ class NewsState extends State<NewsList> {
         _refreshController.requestRefresh(true);
     }
 
+    Future<Null> launchInWebViewWithJavaScript(String url) async {
+        if (await canLaunch(url)) {
+            await launch(
+                url,
+                forceSafariVC: true,
+                forceWebView: true,
+                enableJavaScript: true,
+            );
+        } else {
+            throw 'Could not launch $url';
+        }
+    }
+
     @override
     void initState() {
         // TODO: implement initState
@@ -62,13 +78,13 @@ class NewsState extends State<NewsList> {
         _control.addListener(() {
             print('已到底部');
 
-            if (_control.position.pixels == _control.position.maxScrollExtent) {
-            }
+            if (_control.position.pixels ==
+                _control.position.maxScrollExtent) {}
         });
 //        判断是否自动刷新
         if (widget.isAutoRefresh) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-                new Future.delayed(new Duration(milliseconds: 1),() {
+                new Future.delayed(new Duration(milliseconds: 1), () {
                     refresh();
                 });
             });
@@ -81,14 +97,19 @@ class NewsState extends State<NewsList> {
     @override
     Widget build(BuildContext context) {
         // 第一种cell
-        MaterialButton cellItem_0({int index, NewsItem item}) => new MaterialButton(
-                splashColor: const Color(0x000000),
+        MaterialButton cellItem_0({int index, NewsItem item}) =>
+            new MaterialButton(
+                splashColor: Colors.transparent, // 水波纹透明
                 padding: const EdgeInsets.only(left: 20.0, right: 20.0),
                 onPressed: () {
                     String _id = item.item_id;
                     // push到详情页
-                    Application.router.navigateTo(context, '/detail/$_id',
-                        transition: TransitionType.inFromRight);
+                    if (item.article_type == 1) { // 判断是广告
+                        launchInWebViewWithJavaScript('http://google.com');
+                    } else {
+                        Application.router.navigateTo(context, '/detail/$_id',
+                            transition: TransitionType.inFromRight);
+                    }
                 },
                 child: new Container (
                     padding: const EdgeInsets.only(top: 15.0, bottom: 15.0),
@@ -133,20 +154,28 @@ class NewsState extends State<NewsList> {
                                                             crossAxisAlignment: CrossAxisAlignment
                                                                 .center,
                                                             children: () {
-                                                                return item
-                                                                    .image_list
-                                                                    .map((
-                                                                    imageItem) =>
-                                                                new SizedBox(
-                                                                    width: 120.0,
-                                                                    height: 80.0,
-                                                                    child: new Image(
-                                                                        fit: BoxFit
-                                                                            .cover,
+                                                                return item.image_list.map((imageItem) => new Expanded(
+                                                                    child: new Container(
+                                                                        decoration: const BoxDecoration(
+                                                                            border: Border(
+                                                                                left: BorderSide(
+                                                                                    width: 1.0,
+                                                                                    color: Colors.white
+                                                                                ),
+                                                                                right: BorderSide(
+                                                                                    width: 1.0,
+                                                                                    color: Colors.white
+                                                                                ),
+                                                                            ),
+                                                                        ),
+                                                                        child: new Image(
+                                                                            fit: BoxFit
+                                                                                .cover,
 //                                                                        width: 120.0,
 //                                                                        height: 80.0,
-                                                                        image: new NetworkImageWithRetry(
-                                                                            imageItem['url'])
+                                                                            image: new NetworkImageWithRetry(
+                                                                                imageItem['url'])
+                                                                        )
                                                                     )
                                                                 )
                                                                 ).toList();
@@ -158,7 +187,8 @@ class NewsState extends State<NewsList> {
                                             list.add(
                                                 new Row(
                                                     children: <Widget>[
-                                                        new Container(
+                                                        item.hot == 1
+                                                            ? new Container(
                                                             decoration: new BoxDecoration(
                                                                 border: new Border
                                                                     .all(
@@ -172,10 +202,12 @@ class NewsState extends State<NewsList> {
                                                                     fontSize: 8.0
                                                                 ),
                                                             ),
-                                                        ),
+                                                        )
+                                                            : new Container(),
                                                         new Text(
                                                             '  ${item
-                                                                .media_name} 评论 ${item
+                                                                .media_name ??
+                                                                '广告' } 评论 ${item
                                                                 .comment_count}',
                                                             style: const TextStyle(
                                                                 fontSize: 12.0,
@@ -215,10 +247,11 @@ class NewsState extends State<NewsList> {
             );
 
         // 当列表为空时的cell
-        errorWidget() => new Center(
-            heightFactor: 2.0,
-            child: new Text('目前没有数据'),
-        );
+        errorWidget() =>
+            new Center(
+                heightFactor: 2.0,
+                child: new Text('目前没有数据'),
+            );
         // TODO: implement build
 //        new RefreshIndicator(child: null, onRefresh: null)
         return new SmartRefresher(
@@ -238,7 +271,8 @@ class NewsState extends State<NewsList> {
             onRefresh: (bool up) {
                 if (up) {
                     widget.pullRefresh().then((_) {
-                        _refreshController.sendBack(true, RefreshStatus.completed);
+                        _refreshController.sendBack(
+                            true, RefreshStatus.completed);
                     }).catchError((err) {
                         _refreshController.sendBack(true, RefreshStatus.failed);
                     }).whenComplete(() {
@@ -246,7 +280,7 @@ class NewsState extends State<NewsList> {
                     });
                 }
             },
-            onOffsetChange: (bool up,double offset) {
+            onOffsetChange: (bool up, double offset) {
                 if (up) {
 
                 } else {
@@ -254,23 +288,22 @@ class NewsState extends State<NewsList> {
                     widget.bottomOffsetChange(offset);
                 }
             },
-            child:widget.newsDataList.isEmpty ?
+            child: widget.newsDataList.isEmpty ?
             new ListView(children: <Widget>[errorWidget()]) :
             new ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: widget.newsDataList.length + 1,
                 itemBuilder: (BuildContext context, int index) {
-                    print('index:$index');
+//                    print('index:$index');
                     if (index < widget.newsDataList.length) {
-//                    print('index: $index');
-//                    print('title: ${widget.newsDataList[index].title}');
                         return cellItem_0(
                             index: index,
                             item: widget.newsDataList[index]
                         );
                     } else {
                         return new Container(
-                            padding: const EdgeInsets.only(top: 10.0,bottom: 10.0),
+                            padding: const EdgeInsets.only(
+                                top: 10.0, bottom: 10.0),
                             color: Colors.white30,
                             child: Center(child: new Text(bottomText)),
                         );
