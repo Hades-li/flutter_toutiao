@@ -7,12 +7,22 @@ import 'package:fluro/fluro.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+class NewsController {
+    ValueNotifier<int> topModify; // 用于改变参数时触发
+    refresh() {
+        if (topModify.value == 0) {
+            topModify.value = 1;
+        }
+    }
+}
+
 class NewsList extends StatefulWidget {
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
     final Function bottomOffsetChange;
     final bool isAutoRefresh; // 是否自动加载
     final bool isBottomRefreshing; // 底部是否正在加载，用于标记状态
+    final NewsController controller;
 
     NewsList({
         Key key,
@@ -20,9 +30,11 @@ class NewsList extends StatefulWidget {
         this.isAutoRefresh = false,
         this.pullRefresh,
         this.bottomOffsetChange,
-        this.isBottomRefreshing = false
+        this.isBottomRefreshing = false,
+        controller
     })
         : newsDataList = listData,
+          this.controller = controller ?? new NewsController(),
             super(key: key);
 
     @override
@@ -35,8 +47,7 @@ class NewsState extends State<NewsList> {
     LoadConfig loadConfig;
 
     String get bottomText => widget.isBottomRefreshing ? '正在更新' : '已经到底';
-
-
+    ValueNotifier<int> headModify = new ValueNotifier(0);
     String imgUrl(String url) {
         String imageUrl;
         if (url != null) {
@@ -89,6 +100,10 @@ class NewsState extends State<NewsList> {
                 });
             });
         }
+        widget.controller.topModify = headModify;
+        headModify.addListener(() {
+             this.refresh();
+        });
 
         super.initState();
         print('子类init');

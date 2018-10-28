@@ -8,11 +8,22 @@ import '../modules/newModel.dart';
 import '../modules/newsList.dart';
 import '../utils/http.dart';
 
-class TabTitle {
-    TabTitle(this.title, this.id);
 
+// tab的数据模型
+class TabTitle {
     String title;
     int id;
+    List<NewsItem> listData = [];
+    NewsController controller;
+    TabTitle(this.title, this.id, [list])
+        :this.listData = list ?? <NewsItem>[],
+        this.controller = new NewsController();
+}
+
+class Abc {
+    int num;
+    List<int> list = [];
+    Abc(this.num,[list]);
 }
 
 List<TabTitle> tabList = [
@@ -39,9 +50,11 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
     var _newsDataList = <NewsItem>[];
+
     NewsList _newsList;
     TabController _tabController;
-    GlobalKey<NewsState> newsStateKey = new GlobalKey();
+    NewsController _newsController;
+//    GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
     bool isRefreshing = false;
 
@@ -66,39 +79,6 @@ class _MyHomePageState extends State<MyHomePage>
         });
     }
 
-    // httpClient请求数据(已经不用了)
-    Future _reqList({@required int reqIndex, VoidCallback complete}) {
-        var httpClient = new HttpClient();
-        var url = Uri.parse('${Api.newsList}$reqIndex');
-        print(url);
-        return httpClient
-            .getUrl(url)
-            .timeout(new Duration(milliseconds: 5000))
-            .then((HttpClientRequest request) {
-            return request.close();
-        }).then((HttpClientResponse response) {
-            return response.transform(utf8.decoder).join().then((contents) {
-                var data = json.decode(contents);
-                print('status:${data['code']}');
-                if (data['code'] == 200) {
-                    var list = data['data'];
-                    var tmpList = <NewsItem>[];
-                    list.forEach((item) {
-                        var newsItem = NewsItem.fromJson(item);
-                        tmpList.add(newsItem);
-                    });
-                    print('list长度：${tmpList.length}');
-                    /* setState(() {
-                        _newsDataList = tmpList;
-                    }); */
-                    return tmpList;
-                } else {
-                    throw new Exception(data['msg']);
-                }
-            });
-        });
-    }
-
     Future nextTick() {
         return new Future(() {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -110,24 +90,26 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     void initState() {
         // TODO: implement initState
-
+//        print('空的？${new Abc(10,[1,2,3,4]).list}');
+//        print('空的？${new TabTitle('首页',10).listData}');
+        _newsController = new NewsController();
         // 首次渲染完成的回调
         nextTick().then((_) {
-            print('渲染完成');
+//            _newsController.refresh();
         });
         _tabController = new TabController(length: tabList.length, vsync: this);
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
-                setState(() {
-                    _newsDataList = [];
-                });
-                print(_newsList);
-                if (_newsList != null) {
-                    print('ok');
-                    newsStateKey.currentState.refresh();
+                print('切换完毕');
+                /*setState(() {
+                    newsStateKey = new GlobalKey();
+                });*/
+                if (tabList[_tabController.index].listData != null) {
+                    tabList[_tabController.index].controller.refresh();
                 }
             }
         });
+
         super.initState();
     }
     
@@ -147,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     Widget build(BuildContext context) {
         // 构建新闻列表
-        _newsList = new NewsList(
+        /*_newsList = new NewsList(
             key: newsStateKey,
             listData: _newsDataList,
             isAutoRefresh: true,
@@ -166,7 +148,6 @@ class _MyHomePageState extends State<MyHomePage>
                         return null;
                     });
                 }
-
             },
             bottomOffsetChange: (double offset) {
                 print(offset);
@@ -188,6 +169,58 @@ class _MyHomePageState extends State<MyHomePage>
                 }
 
             },
+        );*/
+
+        TabBarView _tabNewsList = new TabBarView(
+            controller: _tabController,
+            children: tabList.map((item) {
+//                print('列表是否为空:${item.listData}');
+                return new NewsList(
+//                    key: new GlobalKey(),
+//                    isAutoRefresh: true,
+                    listData: item.listData,
+                    isBottomRefreshing: isBottomRefresh,
+                    controller: item.controller,
+                    pullRefresh: () {
+                        if (isRefreshing == false) {
+                            isRefreshing = true;
+                            int index = _tabController.index;
+                            return reqData(index: tabList[index].id).then((list){
+                                setState(() {
+                                    tabList[index].listData = list;
+                                });
+                            }).catchError((onError) {
+                                throw new Exception('404');
+                            }).whenComplete(() {
+                                isRefreshing = false;
+                                return null;
+                            });
+                        } else {
+                            return Future<void>(() => null);
+                        }
+                    },
+                    bottomOffsetChange: (double offset) {
+                        print(offset);
+                        if (isBottomRefresh == false && isRefreshing == false) {
+                            setState(() {
+                                isBottomRefresh = true;
+                            });
+                            final index = _tabController.index;
+                            reqData(index: tabList[index].id).then((list) {
+                                setState(() {
+                                    tabList[index].listData.addAll(list);
+                                });
+                            }).catchError((onError){
+
+                            }).whenComplete(() {
+                                setState(() {
+                                    isBottomRefresh = false;
+                                });
+                            });
+                        }
+                    },
+                );
+            }).toList(),
         );
 
         return new Scaffold(
@@ -228,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage>
                     new Expanded(
                         child: new Container(
                             padding: new EdgeInsets.only(left: 0.0, right: 0.0),
-                            child: _newsList
+                            child: _tabNewsList,
                         ))
                 ],
             )
