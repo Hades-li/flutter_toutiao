@@ -121,7 +121,9 @@ class _MyHomePageState extends State<MyHomePage>
                 setState(() {
                     _newsDataList = [];
                 });
+                print(_newsList);
                 if (_newsList != null) {
+                    print('ok');
                     newsStateKey.currentState.refresh();
                 }
             }

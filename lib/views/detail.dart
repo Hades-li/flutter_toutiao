@@ -43,7 +43,8 @@ class _DetailState extends State<Detail> {
         });
     }
 
-    _reqData({@required String item_id, VoidCallback complete}) {
+    // 采用Dart原生进行请求，可用，但已废弃
+    /*_reqData({@required String item_id, VoidCallback complete}) {
         var httpClient = new HttpClient();
         var url = Uri.parse(Api.detailData + item_id);
         return httpClient.getUrl(url).then((HttpClientRequest request) {
@@ -63,7 +64,7 @@ class _DetailState extends State<Detail> {
         }).catchError((error) {
             print(error);
         }).whenComplete(() {});
-    }
+    }*/
 
     @override
     void initState() {
