@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
 
     TabController _tabController;
-    GlobalKey<NewsState> newsStateKey = new GlobalKey();
+//    GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
     bool isRefreshing = false;
 
@@ -168,16 +168,15 @@ class _MyHomePageState extends State<MyHomePage>
         );*/
 
         TabBarView _tabNewsList = new TabBarView(
-            key: newsStateKey,
             controller: _tabController,
             children: tabList.map((item) {
 //                print('列表是否为空:${item.listData}');
                 return new NewsList(
-                    key: item.key,
+//                    key: item.key,
 //                    isAutoRefresh: true,
                     listData: item.listData,
                     isBottomRefreshing: isBottomRefresh,
-//                    controller: item.controller,
+                    controller: item.controller,
                     pullRefresh: () {
                         if (isRefreshing == false) {
                             isRefreshing = true;
