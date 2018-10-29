@@ -15,8 +15,10 @@ class TabTitle {
     int id;
     List<NewsItem> listData = [];
     NewsController controller;
+    GlobalKey<NewsState> key;
     TabTitle(this.title, this.id, [list])
         :this.listData = list ?? <NewsItem>[],
+        this.key = new GlobalKey(),
         this.controller = new NewsController();
 }
 
@@ -49,12 +51,9 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
-    var _newsDataList = <NewsItem>[];
 
-    NewsList _newsList;
     TabController _tabController;
-    NewsController _newsController;
-//    GlobalKey<NewsState> newsStateKey = new GlobalKey();
+    GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
     bool isRefreshing = false;
 
@@ -80,7 +79,7 @@ class _MyHomePageState extends State<MyHomePage>
     }
 
     Future nextTick() {
-        return new Future(() {
+        return new Future.delayed(new Duration(milliseconds: 1), () {
             WidgetsBinding.instance.addPostFrameCallback((_) {
                 return null;
             });
@@ -90,22 +89,19 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     void initState() {
         // TODO: implement initState
-//        print('空的？${new Abc(10,[1,2,3,4]).list}');
-//        print('空的？${new TabTitle('首页',10).listData}');
-        _newsController = new NewsController();
         // 首次渲染完成的回调
-        nextTick().then((_) {
-//            _newsController.refresh();
-        });
         _tabController = new TabController(length: tabList.length, vsync: this);
+        nextTick().then((_) {
+            print('父节点渲染完成');
+//            print(tabList[_tabController.index].controller);
+        });
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
-                print('切换完毕');
-                /*setState(() {
-                    newsStateKey = new GlobalKey();
-                });*/
-                if (tabList[_tabController.index].listData != null) {
-                    tabList[_tabController.index].controller.refresh();
+                if (tabList[_tabController.index].listData != null && tabList[_tabController.index].listData.length == 0) {
+                    nextTick().then((_) {
+                        print('切换完毕');
+                        tabList[_tabController.index].controller.refresh();
+                    });
                 }
             }
         });
@@ -172,15 +168,16 @@ class _MyHomePageState extends State<MyHomePage>
         );*/
 
         TabBarView _tabNewsList = new TabBarView(
+            key: newsStateKey,
             controller: _tabController,
             children: tabList.map((item) {
 //                print('列表是否为空:${item.listData}');
                 return new NewsList(
-//                    key: new GlobalKey(),
+                    key: item.key,
 //                    isAutoRefresh: true,
                     listData: item.listData,
                     isBottomRefreshing: isBottomRefresh,
-                    controller: item.controller,
+//                    controller: item.controller,
                     pullRefresh: () {
                         if (isRefreshing == false) {
                             isRefreshing = true;

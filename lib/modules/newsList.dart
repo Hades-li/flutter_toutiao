@@ -58,10 +58,18 @@ class NewsState extends State<NewsList> {
         return imageUrl;
     }
 
+    Future nextTick() {
+        return new Future.delayed(new Duration(milliseconds: 1), () {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+                return null;
+            });
+        });
+    }
+
     void refresh() {
-//        _refreshController.sendBack(true, RefreshStatus.idle);
-//        _refreshController.scrollTo(100.0);
-        _refreshController.requestRefresh(true);
+        nextTick().then((_) {
+            _refreshController.requestRefresh(true);
+        });
     }
 
     Future<Null> launchInWebViewWithJavaScript(String url) async {
@@ -88,7 +96,6 @@ class NewsState extends State<NewsList> {
         _control = new ScrollController();
         _control.addListener(() {
             print('已到底部');
-
             if (_control.position.pixels ==
                 _control.position.maxScrollExtent) {}
         });
@@ -96,7 +103,7 @@ class NewsState extends State<NewsList> {
         if (widget.isAutoRefresh) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
                 new Future.delayed(new Duration(milliseconds: 1), () {
-                    refresh();
+
                 });
             });
         }
@@ -105,8 +112,13 @@ class NewsState extends State<NewsList> {
              this.refresh();
         });
 
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+            new Future.delayed(new Duration(milliseconds: 1), () {
+                print('子类渲染完成');
+            });
+        });
+
         super.initState();
-        print('子类init');
     }
 
     @override
