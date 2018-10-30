@@ -121,47 +121,6 @@ class _MyHomePageState extends State<MyHomePage>
     @override
     Widget build(BuildContext context) {
         // 构建新闻列表
-        /*_newsList = new NewsList(
-            key: newsStateKey,
-            listData: _newsDataList,
-            isAutoRefresh: true,
-            isBottomRefreshing: isBottomRefresh,
-            pullRefresh: () {
-                if (isRefreshing == false) {
-                    isRefreshing = true;
-                    return reqData(index: tabList[_tabController.index].id).then((list){
-                        setState(() {
-                            _newsDataList = list;
-                        });
-                    }).catchError((onError) {
-                        throw new Exception('404');
-                    }).whenComplete(() {
-                        isRefreshing = false;
-                        return null;
-                    });
-                }
-            },
-            bottomOffsetChange: (double offset) {
-                print(offset);
-                if (isBottomRefresh == false && isRefreshing == false) {
-                    setState(() {
-                        isBottomRefresh = true;
-                    });
-                    reqData(index: tabList[_tabController.index].id).then((list) {
-                        setState(() {
-                            _newsDataList.addAll(list);
-                        });
-                    }).catchError((onError){
-
-                    }).whenComplete(() {
-                        setState(() {
-                            isBottomRefresh = false;
-                        });
-                    });
-                }
-
-            },
-        );*/
 
         _tabNewsList () => new TabBarView(
 //            key: newsStateKey,
@@ -195,23 +154,23 @@ class _MyHomePageState extends State<MyHomePage>
                     },
                     bottomOffsetChange: (double offset) {
 //                        print(offset);
-//                        if (isBottomRefresh == false && isRefreshing == false) {
-//                            setState(() {
-//                                isBottomRefresh = true;
-//                            });
-//                            final index = _tabController.index;
-//                            reqData(index: tabList[index].id).then((list) {
-//                                setState(() {
-//                                    tabList[index].listData.addAll(list);
-//                                });
-//                            }).catchError((onError){
-//
-//                            }).whenComplete(() {
-//                                setState(() {
-//                                    isBottomRefresh = false;
-//                                });
-//                            });
-//                        }
+                        if (isBottomRefresh == false && isRefreshing == false) {
+                            setState(() {
+                                isBottomRefresh = true;
+                            });
+                            final index = _tabController.index;
+                            reqData(index: tabList[index].id).then((list) {
+                                setState(() {
+                                    tabList[index].listData.addAll(list);
+                                });
+                            }).catchError((onError){
+
+                            }).whenComplete(() {
+                                setState(() {
+                                    isBottomRefresh = false;
+                                });
+                            });
+                        }
                     },
                 );
             }).toList(),
