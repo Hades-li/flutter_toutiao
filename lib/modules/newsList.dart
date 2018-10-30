@@ -8,7 +8,7 @@ import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class NewsController {
-    ValueNotifier<int> topModify; // 用于改变参数时触发
+    ValueNotifier<int> topModify = new ValueNotifier(0); // 用于改变参数时触发
     refresh() {
         if (topModify.value == 0) {
             topModify.value = 1;
@@ -17,6 +17,7 @@ class NewsController {
 }
 
 class NewsList extends StatefulWidget {
+    final String title;
     final List<NewsItem> newsDataList;
     final RefreshCallback pullRefresh;
     final Function bottomOffsetChange;
@@ -31,6 +32,7 @@ class NewsList extends StatefulWidget {
         this.pullRefresh,
         this.bottomOffsetChange,
         this.isBottomRefreshing = false,
+        this.title = '',
         controller
     })
         : newsDataList = listData,
@@ -58,16 +60,14 @@ class NewsState extends State<NewsList> {
         return imageUrl;
     }
 
-    Future nextTick() {
-        return new Future.delayed(new Duration(milliseconds: 1), () {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-                return null;
-            });
+    nextTick(VoidCallback callback) {
+        WidgetsBinding.instance.endOfFrame.then((_) {
+            callback();
         });
     }
 
     void refresh() {
-        nextTick().then((_) {
+        nextTick(() {
             _refreshController.requestRefresh(true);
         });
     }
@@ -93,32 +93,29 @@ class NewsState extends State<NewsList> {
         );
         _refreshController = new RefreshController();
 
-        _control = new ScrollController();
+        /*_control = new ScrollController();
         _control.addListener(() {
             print('已到底部');
-            if (_control.position.pixels ==
-                _control.position.maxScrollExtent) {}
-        });
+            if (_control.position.pixels == _control.position.maxScrollExtent) {
+
+            }
+        });*/
 //        判断是否自动刷新
         if (widget.isAutoRefresh) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-                new Future.delayed(new Duration(milliseconds: 1), () {
-
-                });
-            });
+            refresh();
         }
-        widget.controller.topModify = headModify;
-        headModify.addListener(() {
-             this.refresh();
+        widget.controller.topModify.addListener((){
+            this.refresh();
+            widget.controller.topModify.value = 0;
         });
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-            new Future.delayed(new Duration(milliseconds: 1), () {
-                print('子类渲染完成');
-            });
-        });
-
         super.initState();
+    }
+
+    @override
+    void dispose() {
+    // TODO: implement dispose
+        print('销毁：${widget.title}');
+        super.dispose();
     }
 
     @override
@@ -356,7 +353,7 @@ class NewsState extends State<NewsList> {
                         );
                     }
                 },
-                controller: _control,
+//                controller: _control,
             )
         );
     }

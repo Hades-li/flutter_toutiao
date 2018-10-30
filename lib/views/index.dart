@@ -53,7 +53,7 @@ class _MyHomePageState extends State<MyHomePage>
     with SingleTickerProviderStateMixin {
 
     TabController _tabController;
-//    GlobalKey<NewsState> newsStateKey = new GlobalKey();
+    GlobalKey<NewsState> newsStateKey = new GlobalKey();
     bool isBottomRefresh = false;
     bool isRefreshing = false;
 
@@ -78,11 +78,9 @@ class _MyHomePageState extends State<MyHomePage>
         });
     }
 
-    Future nextTick() {
-        return new Future.delayed(new Duration(milliseconds: 1), () {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-                return null;
-            });
+    nextTick(VoidCallback callback) {
+        WidgetsBinding.instance.endOfFrame.then((_) {
+            callback();
         });
     }
 
@@ -91,17 +89,16 @@ class _MyHomePageState extends State<MyHomePage>
         // TODO: implement initState
         // 首次渲染完成的回调
         _tabController = new TabController(length: tabList.length, vsync: this);
-        nextTick().then((_) {
+        nextTick(() {
             print('父节点渲染完成');
-//            print(tabList[_tabController.index].controller);
+//            print();
+            tabList[_tabController.index].controller.refresh();
         });
+
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
                 if (tabList[_tabController.index].listData != null && tabList[_tabController.index].listData.length == 0) {
-                    nextTick().then((_) {
-                        print('切换完毕');
-                        tabList[_tabController.index].controller.refresh();
-                    });
+//                    tabList[_tabController.index].controller.refresh();
                 }
             }
         });
@@ -167,11 +164,13 @@ class _MyHomePageState extends State<MyHomePage>
             },
         );*/
 
-        TabBarView _tabNewsList = new TabBarView(
+        _tabNewsList () => new TabBarView(
+//            key: newsStateKey,
             controller: _tabController,
             children: tabList.map((item) {
 //                print('列表是否为空:${item.listData}');
                 return new NewsList(
+                    title: item.title,
 //                    key: item.key,
 //                    isAutoRefresh: true,
                     listData: item.listData,
@@ -257,7 +256,7 @@ class _MyHomePageState extends State<MyHomePage>
                     new Expanded(
                         child: new Container(
                             padding: new EdgeInsets.only(left: 0.0, right: 0.0),
-                            child: _tabNewsList,
+                            child: _tabNewsList(),
                         ))
                 ],
             )
