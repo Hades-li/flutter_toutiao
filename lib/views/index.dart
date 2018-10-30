@@ -91,14 +91,13 @@ class _MyHomePageState extends State<MyHomePage>
         _tabController = new TabController(length: tabList.length, vsync: this);
         nextTick(() {
             print('父节点渲染完成');
-//            print();
             tabList[_tabController.index].controller.refresh();
         });
 
         _tabController.addListener(() {
             if (_tabController.indexIsChanging == false) {
                 if (tabList[_tabController.index].listData != null && tabList[_tabController.index].listData.length == 0) {
-//                    tabList[_tabController.index].controller.refresh();
+                    tabList[_tabController.index].controller.refresh();
                 }
             }
         });
@@ -195,24 +194,24 @@ class _MyHomePageState extends State<MyHomePage>
                         }
                     },
                     bottomOffsetChange: (double offset) {
-                        print(offset);
-                        if (isBottomRefresh == false && isRefreshing == false) {
-                            setState(() {
-                                isBottomRefresh = true;
-                            });
-                            final index = _tabController.index;
-                            reqData(index: tabList[index].id).then((list) {
-                                setState(() {
-                                    tabList[index].listData.addAll(list);
-                                });
-                            }).catchError((onError){
-
-                            }).whenComplete(() {
-                                setState(() {
-                                    isBottomRefresh = false;
-                                });
-                            });
-                        }
+//                        print(offset);
+//                        if (isBottomRefresh == false && isRefreshing == false) {
+//                            setState(() {
+//                                isBottomRefresh = true;
+//                            });
+//                            final index = _tabController.index;
+//                            reqData(index: tabList[index].id).then((list) {
+//                                setState(() {
+//                                    tabList[index].listData.addAll(list);
+//                                });
+//                            }).catchError((onError){
+//
+//                            }).whenComplete(() {
+//                                setState(() {
+//                                    isBottomRefresh = false;
+//                                });
+//                            });
+//                        }
                     },
                 );
             }).toList(),

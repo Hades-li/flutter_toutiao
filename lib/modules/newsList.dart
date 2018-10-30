@@ -7,13 +7,15 @@ import 'package:fluro/fluro.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class NewsController {
-    ValueNotifier<int> topModify = new ValueNotifier(0); // 用于改变参数时触发
+class NewsController extends ChangeNotifier {
+
     refresh() {
-        if (topModify.value == 0) {
-            topModify.value = 1;
+        if (hasListeners) {
+            notifyListeners();
         }
     }
+
+
 }
 
 class NewsList extends StatefulWidget {
@@ -44,8 +46,8 @@ class NewsList extends StatefulWidget {
 }
 
 class NewsState extends State<NewsList> {
-    RefreshController _refreshController;
-    ScrollController _control;
+    RefreshController _refreshController = new RefreshController();
+//    ScrollController _control;
     LoadConfig loadConfig;
 
     String get bottomText => widget.isBottomRefreshing ? '正在更新' : '已经到底';
@@ -67,9 +69,9 @@ class NewsState extends State<NewsList> {
     }
 
     void refresh() {
-        nextTick(() {
+//        nextTick(() {
             _refreshController.requestRefresh(true);
-        });
+//        });
     }
 
     Future<Null> launchInWebViewWithJavaScript(String url) async {
@@ -91,35 +93,31 @@ class NewsState extends State<NewsList> {
         loadConfig = new LoadConfig(
             autoLoad: false
         );
-        _refreshController = new RefreshController();
+//        _refreshController = new RefreshController();
 
-        /*_control = new ScrollController();
-        _control.addListener(() {
-            print('已到底部');
-            if (_control.position.pixels == _control.position.maxScrollExtent) {
-
-            }
-        });*/
 //        判断是否自动刷新
         if (widget.isAutoRefresh) {
             refresh();
         }
-        widget.controller.topModify.addListener((){
+        widget.controller.addListener((){
             this.refresh();
-            widget.controller.topModify.value = 0;
         });
+
+        print('子组件初始化:${widget.title}');
+
         super.initState();
     }
 
     @override
     void dispose() {
     // TODO: implement dispose
-        print('销毁：${widget.title}');
+        print('子组件销毁：${widget.title}');
         super.dispose();
     }
 
     @override
     Widget build(BuildContext context) {
+        print('子组件build:${widget.title}');
         // 第一种cell
         MaterialButton cellItem_0({int index, NewsItem item}) =>
             new MaterialButton(
