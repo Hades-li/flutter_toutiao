@@ -15,6 +15,8 @@
 ## 更新说明
 0.1的版本更新为采用tabBar的切换方式。可惜造成了第三方下拉插件出现bug。
 
+![image](https://github.com/Hades-li/flutter_toutiao/blob/0.1/demo.gif)
+
 For help getting started with Flutter, view our online
 [documentation](https://flutter.io/).
 
