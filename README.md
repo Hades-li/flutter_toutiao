@@ -12,6 +12,9 @@
 3. 接口直接改为调用m.toutiao.com的接口。可惜没有办法破解接口请求参数，导致同类型新闻在短时间内刷新或者加载，内容都不会变化。
 
 
+## 更新说明
+0.1的版本更新为采用tabBar的切换方式。可惜造成了第三方下拉插件出现bug。
+
 For help getting started with Flutter, view our online
 [documentation](https://flutter.io/).
 
